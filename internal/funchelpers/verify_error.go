@@ -21,8 +21,6 @@ package funchelpers
 
 import (
 	"io"
-
-	"github.com/opencontainers/umoci/internal/assert"
 )
 
 // VerifyError is a helper designed to make verifying deferred functions that
@@ -52,15 +50,9 @@ import (
 //		}
 //		return nil
 //	}
-func VerifyError(Err *error, closeFn func() error) {
-	assert.Assert(Err != nil,
-		"VerifyError must be called with non-nil Err slot") // programmer error
-	if err := closeFn(); err != nil && *Err == nil {
-		*Err = err
-	}
-}
+func VerifyError(Err *error, closeFn func() error) { _ = "STUB: not implemented"; return }
+
+// programmer error
 
 // VerifyClose is shorthand for `VerifyError(Err, closer.Close)`.
-func VerifyClose(Err *error, closer io.Closer) {
-	VerifyError(Err, closer.Close)
-}
+func VerifyClose(Err *error, closer io.Closer) { _ = "STUB: not implemented"; return }

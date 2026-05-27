@@ -20,7 +20,6 @@
 package layer
 
 import (
-	"strings"
 	"time"
 
 	ispec "github.com/opencontainers/image-spec/specs-go/v1"
@@ -65,10 +64,14 @@ type DirRootfs struct {
 	MapOptions MapOptions
 }
 
-func (DirRootfs) onDiskFormatInternal() {}
+func (DirRootfs) onDiskFormatInternal() {
+	_ = "STUB: not implemented"
 
-// Map returns the format-agnostic information about userns mapping.
-func (fs DirRootfs) Map() MapOptions { return fs.MapOptions }
+	// Map returns the format-agnostic information about userns mapping.
+	return
+}
+
+func (fs DirRootfs) Map() MapOptions { _ = "STUB: not implemented"; return *new(MapOptions) }
 
 var _ OnDiskFormat = DirRootfs{}
 
@@ -94,25 +97,27 @@ type OverlayfsRootfs struct {
 	UserXattr bool
 }
 
-func (OverlayfsRootfs) onDiskFormatInternal() {}
+func (OverlayfsRootfs) onDiskFormatInternal() {
+	_ = "STUB: not implemented"
 
-// Map returns the format-agnostic information about userns mapping.
-func (fs OverlayfsRootfs) Map() MapOptions { return fs.MapOptions }
-
-// xattrNamespace returns the correct top-level xattr namespace for the
-// overlayfs mount that this on-disk format was intended for.
-func (fs OverlayfsRootfs) xattrNamespace() string {
-	if fs.UserXattr {
-		return "user."
-	}
-	return "trusted."
+	// Map returns the format-agnostic information about userns mapping.
+	return
 }
+
+func (fs OverlayfsRootfs) Map() MapOptions {
+	_ = "STUB: not implemented"
+	return *
+
+	// xattrNamespace returns the correct top-level xattr namespace for the
+	// overlayfs mount that this on-disk format was intended for.
+	new(MapOptions)
+}
+
+func (fs OverlayfsRootfs) xattrNamespace() string { _ = "STUB: not implemented"; return "" }
 
 // xattr returns the given sub-xattr with the appropriate overlayfs xattr
 // prefix applied.
-func (fs OverlayfsRootfs) xattr(parts ...string) string {
-	return fs.xattrNamespace() + "overlay." + strings.Join(parts, ".")
-}
+func (fs OverlayfsRootfs) xattr(parts ...string) string { _ = "STUB: not implemented"; return "" }
 
 var _ OnDiskFormat = OverlayfsRootfs{}
 
@@ -152,24 +157,13 @@ type UnpackOptions struct {
 // fill replaces nil values in UnpackOptions with the correct default values.
 // If opt itself is nil then a new UnpackOptions struct is allocated and
 // returned.
-func (opt *UnpackOptions) fill() *UnpackOptions {
-	if opt == nil {
-		opt = &UnpackOptions{}
-	}
-	if opt.OnDiskFormat == nil {
-		opt.OnDiskFormat = DirRootfs{}
-	}
-	return opt
-}
+func (opt *UnpackOptions) fill() *UnpackOptions { _ = "STUB: not implemented"; return nil }
 
 // MapOptions is shorthand for opt.OnDiskFormat.MapOptions(), except if
 // OnDiskFormat is nil then it will return the default MapOptions.
 func (opt UnpackOptions) MapOptions() MapOptions {
-	var mapOpt MapOptions
-	if opt.OnDiskFormat != nil {
-		mapOpt = opt.OnDiskFormat.Map()
-	}
-	return mapOpt
+	_ = "STUB: not implemented"
+	return *new(MapOptions)
 }
 
 // RepackOptions describes the behavior of the various GenerateLayer operations.
@@ -188,22 +182,11 @@ type RepackOptions struct {
 // fill replaces nil values in RepackOptions with the correct default values.
 // If opt itself is nil then a new RepackOptions struct is allocated and
 // returned.
-func (opt *RepackOptions) fill() *RepackOptions {
-	if opt == nil {
-		opt = &RepackOptions{}
-	}
-	if opt.OnDiskFormat == nil {
-		opt.OnDiskFormat = DirRootfs{}
-	}
-	return opt
-}
+func (opt *RepackOptions) fill() *RepackOptions { _ = "STUB: not implemented"; return nil }
 
 // MapOptions is shorthand for opt.OnDiskFormat.MapOptions(), except if
 // OnDiskFormat is nil then it will return the default MapOptions.
 func (opt RepackOptions) MapOptions() MapOptions {
-	var mapOpt MapOptions
-	if opt.OnDiskFormat != nil {
-		mapOpt = opt.OnDiskFormat.Map()
-	}
-	return mapOpt
+	_ = "STUB: not implemented"
+	return *new(MapOptions)
 }

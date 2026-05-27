@@ -20,8 +20,6 @@
 package layer
 
 import (
-	"strings"
-
 	"github.com/opencontainers/umoci/internal/testhelpers"
 )
 
@@ -102,12 +100,22 @@ type forbiddenXattrFilter struct{}
 
 var _ xattrFilter = forbiddenXattrFilter{}
 
-func (forbiddenXattrFilter) MaskedOnDisk(OnDiskFormat, string) bool { return true }
-func (forbiddenXattrFilter) ToDisk(OnDiskFormat, string) string     { return "" }
-func (forbiddenXattrFilter) ToTar(OnDiskFormat, string) string      { return "" }
+func (forbiddenXattrFilter) MaskedOnDisk(OnDiskFormat, string) bool {
+	_ = "STUB: not implemented"
+	return false
+}
+func (forbiddenXattrFilter) ToDisk(OnDiskFormat, string) string {
+	_ = "STUB: not implemented"
+	return ""
+}
+func (forbiddenXattrFilter) ToTar(OnDiskFormat, string) string {
+	_ = "STUB: not implemented"
 
-// overlayXattrFilter is a filter for all {user,trusted}.overlay.* xattrs which
-// will escape the xattrs on unpack and unescape them when.
+	// overlayXattrFilter is a filter for all {user,trusted}.overlay.* xattrs which
+	// will escape the xattrs on unpack and unescape them when.
+	return ""
+}
+
 type overlayXattrFilter struct {
 	// namespace is the xattr namespace used for this overlayfs xattr filter.
 	// Examples would be "user." or "trusted.".
@@ -117,85 +125,61 @@ type overlayXattrFilter struct {
 var _ xattrFilter = overlayXattrFilter{}
 
 func (filter overlayXattrFilter) MaskedOnDisk(onDiskFmt OnDiskFormat, xattr string) bool {
-	overlayfsFmt, isOverlayfs := onDiskFmt.(OverlayfsRootfs)
-	if !isOverlayfs {
-		// In non-overlayfs mode, overlay xattrs are not special and can be
-		// treated like any other xattr. (Though it would be a little strange
-		// to see them.)
-		return false
-	}
-	if overlayfsFmt.xattrNamespace() != filter.namespace || !doesXattrMatch(xattr, overlayfsFmt.xattr()) {
-		// We might be called with a different prefix than the one used for
-		// extraction -- overlayfs only supports one xattr namespace for a
-		// given mount, so if the prefix doesn't match we treat this like any
-		// other xattr.
-		return false
-	}
-
-	// Only {trusted,user}.overlay.* top-level xattrs are masked in overlayfs
-	// mode. Escaped xattrs and xattrs in regular mode are allowed.
-	return doesXattrMatch(xattr, filter.namespace+"overlay.") &&
-		!doesXattrMatch(xattr, filter.namespace+"overlay.overlay.")
+	_ = "STUB: not implemented"
+	return false
 }
+
+// In non-overlayfs mode, overlay xattrs are not special and can be
+// treated like any other xattr. (Though it would be a little strange
+// to see them.)
+
+// We might be called with a different prefix than the one used for
+// extraction -- overlayfs only supports one xattr namespace for a
+// given mount, so if the prefix doesn't match we treat this like any
+// other xattr.
+
+// Only {trusted,user}.overlay.* top-level xattrs are masked in overlayfs
+// mode. Escaped xattrs and xattrs in regular mode are allowed.
 
 func (filter overlayXattrFilter) ToDisk(onDiskFmt OnDiskFormat, xattr string) string {
-	if !doesXattrMatch(xattr, filter.namespace+"overlay.") {
-		// For some inexplicable reason, we were called with a different xattr
-		// namespace. Act as a no-op in that case.
-		return xattr
-	}
-
-	overlayfsFmt, isOverlayfs := onDiskFmt.(OverlayfsRootfs)
-	if !isOverlayfs {
-		// In non-overlayfs mode, overlay xattrs are not special and can be
-		// treated like any other xattr. (Though it would be a little strange
-		// to see them.)
-		return xattr
-	}
-	if overlayfsFmt.xattrNamespace() != filter.namespace {
-		// We might be called with a different prefix than the one used for
-		// extraction -- overlayfs only supports one xattr namespace for a
-		// given mount, so if the prefix doesn't match we treat this like any
-		// other xattr.
-		return xattr
-	}
-
-	// We know it has the prefix so no need for CutPrefix.
-	subXattr := strings.TrimPrefix(xattr, filter.namespace+"overlay.")
-	return filter.namespace + "overlay.overlay." + subXattr
+	_ = "STUB: not implemented"
+	return ""
 }
+
+// For some inexplicable reason, we were called with a different xattr
+// namespace. Act as a no-op in that case.
+
+// In non-overlayfs mode, overlay xattrs are not special and can be
+// treated like any other xattr. (Though it would be a little strange
+// to see them.)
+
+// We might be called with a different prefix than the one used for
+// extraction -- overlayfs only supports one xattr namespace for a
+// given mount, so if the prefix doesn't match we treat this like any
+// other xattr.
+
+// We know it has the prefix so no need for CutPrefix.
 
 func (filter overlayXattrFilter) ToTar(onDiskFmt OnDiskFormat, xattr string) string {
-	if !doesXattrMatch(xattr, filter.namespace+"overlay.") {
-		// For some inexplicable reason, we were called with a different xattr
-		// namespace. Act as a no-op in that case.
-		return xattr
-	}
-
-	overlayfsFmt, isOverlayfs := onDiskFmt.(OverlayfsRootfs)
-	if !isOverlayfs {
-		// In non-overlayfs mode, overlay xattrs are not special and can be
-		// treated like any other xattr. (Though it would be a little strange
-		// to see them.)
-		return xattr
-	}
-	if overlayfsFmt.xattrNamespace() != filter.namespace {
-		// We might be called with a different prefix than the one used for
-		// extraction -- overlayfs only supports one xattr namespace for a
-		// given mount, so if the prefix doesn't match we treat this like any
-		// other xattr.
-		return xattr
-	}
-
-	subXattr, isEscapedXattr := strings.CutPrefix(xattr, filter.namespace+"overlay.overlay.")
-	if !isEscapedXattr {
-		// Clear any non-escaped xattrs entirely, as they may have been
-		// auto-set by overlayfs or set by the user when configuring overlayfs.
-		// This matches the behaviour of MaskedOnDisk.
-		return ""
-	}
-	return filter.namespace + "overlay." + subXattr
+	_ = "STUB: not implemented"
+	return ""
 }
+
+// For some inexplicable reason, we were called with a different xattr
+// namespace. Act as a no-op in that case.
+
+// In non-overlayfs mode, overlay xattrs are not special and can be
+// treated like any other xattr. (Though it would be a little strange
+// to see them.)
+
+// We might be called with a different prefix than the one used for
+// extraction -- overlayfs only supports one xattr namespace for a
+// given mount, so if the prefix doesn't match we treat this like any
+// other xattr.
+
+// Clear any non-escaped xattrs entirely, as they may have been
+// auto-set by overlayfs or set by the user when configuring overlayfs.
+// This matches the behaviour of MaskedOnDisk.
 
 // specialXattrs is a list of xattr names (or prefixes) that may need have to
 // have special handling because treating them as-is would be incorrect (either
@@ -231,23 +215,14 @@ func init() {
 // doesXattrMatch returns whether the given xattr matches the filter. The
 // semantics are very simple -- if the filter ends with "." then it is treated
 // as a prefix while if it doesn't end with "." it must match exactly.
-func doesXattrMatch(xattr, filter string) bool {
-	return filter == xattr ||
-		(strings.HasSuffix(filter, ".") && strings.HasPrefix(xattr, filter))
-}
+func doesXattrMatch(xattr, filter string) bool { _ = "STUB: not implemented"; return false }
 
 // getXattrFilter looks for the filter which matches xattr. isSpecial will be
 // true if there is a registered filter that matches the provided xattr.
 func getXattrFilter(xattr string) (filter xattrFilter, isSpecial bool) {
+	_ = "STUB: not implemented"
 	// fast path: look up the xattr directly
-	if filter, ok := specialXattrs[xattr]; ok {
-		return filter, ok
-	}
-	// slow path: match xattr prefixes
-	for prefix, filter := range specialXattrs {
-		if doesXattrMatch(xattr, prefix) {
-			return filter, true
-		}
-	}
-	return nil, false
+	return *new(xattrFilter), false
 }
+
+// slow path: match xattr prefixes

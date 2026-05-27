@@ -29,9 +29,7 @@ var binaryType = releaseBinary
 // IsTestBinary returns whether the current binary is a test binary. This is
 // only ever meant to be used so that test-specific initialisations can be done
 // inside packages. Don't use it for anything else.
-func IsTestBinary() bool {
-	return binaryType == testBinary
-}
+func IsTestBinary() bool { _ = "STUB: not implemented"; return false }
 
 const (
 	testBinary    = "test"

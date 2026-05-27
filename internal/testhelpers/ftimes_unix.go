@@ -30,6 +30,7 @@ import (
 //
 //	filesystems can have different granularities...
 func FtimeGranularity() time.Duration {
+	_ = "STUB: not implemented"
 	// On Linux, most filesystems have nano-second-level granularity.
-	return time.Nanosecond
+	return *new(time.Duration)
 }

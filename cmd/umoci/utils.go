@@ -20,23 +20,11 @@
 package main
 
 import (
-	"fmt"
-	"os"
-	"strconv"
 	"time"
 )
 
 // parseSourceDateEpoch parses the SOURCE_DATE_EPOCH environment variable
 // and returns the corresponding time.Time or nil if not set.
-func parseSourceDateEpoch() (*time.Time, error) {
-	val := os.Getenv("SOURCE_DATE_EPOCH")
-	if val == "" {
-		return nil, nil //nolint:nilnil // *time.Time is preferred
-	}
-	timestamp, err := strconv.ParseInt(val, 10, 64)
-	if err != nil {
-		return nil, fmt.Errorf("parse SOURCE_DATE_EPOCH=%q: %w", val, err)
-	}
-	epoch := time.Unix(timestamp, 0).UTC()
-	return &epoch, nil
-}
+func parseSourceDateEpoch() (*time.Time, error) { _ = "STUB: not implemented"; return nil, nil }
+
+//nolint:nilnil // *time.Time is preferred

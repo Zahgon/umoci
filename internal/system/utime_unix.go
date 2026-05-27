@@ -20,24 +20,10 @@
 package system
 
 import (
-	"os"
 	"time"
-
-	"golang.org/x/sys/unix"
 )
 
 // Lutimes is a wrapper around utimensat(2), with the AT_SYMLINK_NOFOLLOW flag
 // set, to allow changing the time of a symlink rather than the file it points
 // to.
-func Lutimes(path string, atime, mtime time.Time) error {
-	times := []unix.Timespec{
-		unix.NsecToTimespec(atime.UnixNano()),
-		unix.NsecToTimespec(mtime.UnixNano()),
-	}
-
-	err := unix.UtimesNanoAt(unix.AT_FDCWD, path, times, unix.AT_SYMLINK_NOFOLLOW)
-	if err != nil {
-		return &os.PathError{Op: "lutimes", Path: path, Err: err}
-	}
-	return nil
-}
+func Lutimes(path string, atime, mtime time.Time) error { _ = "STUB: not implemented"; return nil }

@@ -19,10 +19,6 @@
 
 package mediatype
 
-import (
-	"strings"
-)
-
 const (
 	// GzipSuffix is the standard media-type suffix for gzip compressed blobs.
 	GzipSuffix = "gzip"
@@ -41,6 +37,6 @@ const (
 // should only be used for OCI media-types, where this behaviour is
 // well-defined.
 func SplitMediaTypeSuffix(mediaType string) (baseType, suffix string) {
-	baseType, suffix, _ = strings.Cut(mediaType, "+")
-	return baseType, suffix
+	_ = "STUB: not implemented"
+	return "", ""
 }

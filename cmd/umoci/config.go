@@ -20,21 +20,12 @@
 package main
 
 import (
-	"context"
 	"errors"
-	"fmt"
-	"strings"
-	"time"
 
-	"github.com/apex/log"
 	ispec "github.com/opencontainers/image-spec/specs-go/v1"
 	"github.com/urfave/cli"
 
-	"github.com/opencontainers/umoci/internal/funchelpers"
 	"github.com/opencontainers/umoci/mutate"
-	"github.com/opencontainers/umoci/oci/cas/dir"
-	"github.com/opencontainers/umoci/oci/casext"
-	igen "github.com/opencontainers/umoci/oci/config/generate"
 )
 
 // FIXME: We should also implement a raw mode that just does modifications of
@@ -104,259 +95,34 @@ image.`,
 }))
 
 func toImage(config ispec.ImageConfig, meta mutate.Meta) ispec.Image {
-	created := meta.Created
-	return ispec.Image{
-		Config:  config,
-		Created: &created,
-		Author:  meta.Author,
-		Platform: ispec.Platform{
-			OS:           meta.OS,
-			Architecture: meta.Architecture,
-			Variant:      meta.Variant,
-		},
-	}
+	_ = "STUB: not implemented"
+	return *new(ispec.Image)
 }
 
 func fromImage(image ispec.Image) (ispec.ImageConfig, mutate.Meta) {
-	var created time.Time
-	if image.Created != nil {
-		created = *image.Created
-	}
-	return image.Config, mutate.Meta{
-		Created:      created,
-		Author:       image.Author,
-		OS:           image.OS,
-		Architecture: image.Architecture,
-		Variant:      image.Variant,
-	}
+	_ = "STUB: not implemented"
+	return *new(ispec.ImageConfig), *new(mutate.Meta)
 }
 
 // parseKV splits a given string (of the form name=value) into (name,
 // value). An error is returned if there is no "=" in the line or if the
 // name is empty.
-func parseKV(input string) (string, string, error) {
-	parts := strings.SplitN(input, "=", 2)
-	if len(parts) != 2 {
-		return "", "", fmt.Errorf("must contain '=': %s", input)
-	}
+func parseKV(input string) (string, string, error) { _ = "STUB: not implemented"; return "", "", nil }
 
-	name, value := parts[0], parts[1]
-	if name == "" {
-		return "", "", fmt.Errorf("must have non-empty name: %s", input)
-	}
-	return name, value, nil
-}
+func config(ctx *cli.Context) (Err error) { _ = "STUB: not implemented"; return nil }
 
-func config(ctx *cli.Context) (Err error) {
-	imagePath := mustFetchMeta[string](ctx, "--image-path")
-	fromName := mustFetchMeta[string](ctx, "--image-tag")
+// By default we clobber the old tag.
 
-	// By default we clobber the old tag.
-	tagName := fromName
-	if val, ok := fetchMeta[string](ctx, "--tag"); ok {
-		tagName = val
-	}
+// Get a reference to the CAS.
 
-	// Get a reference to the CAS.
-	engine, err := dir.Open(imagePath)
-	if err != nil {
-		return fmt.Errorf("open CAS: %w", err)
-	}
-	engineExt := casext.NewEngine(engine)
-	defer funchelpers.VerifyClose(&Err, engine)
+// TODO: Handle this more nicely.
 
-	fromDescriptorPaths, err := engineExt.ResolveReference(context.Background(), fromName)
-	if err != nil {
-		return fmt.Errorf("get descriptor: %w", err)
-	}
-	if len(fromDescriptorPaths) == 0 {
-		return fmt.Errorf("tag not found: %s", fromName)
-	}
-	if len(fromDescriptorPaths) != 1 {
-		// TODO: Handle this more nicely.
-		return fmt.Errorf("tag is ambiguous: %s", fromName)
-	}
+// g.ClearRootfsDiffIDs()
 
-	mutator, err := mutate.New(engine, fromDescriptorPaths[0])
-	if err != nil {
-		return fmt.Errorf("create mutator for manifest: %w", err)
-	}
+// How do we handle other formats?
 
-	config, err := mutator.Config(context.Background())
-	if err != nil {
-		return fmt.Errorf("get base config: %w", err)
-	}
+// FIXME: This interface is weird.
 
-	imageMeta, err := mutator.Meta(context.Background())
-	if err != nil {
-		return fmt.Errorf("get base metadata: %w", err)
-	}
+// FIXME: This interface is weird.
 
-	annotations, err := mutator.Annotations(context.Background())
-	if err != nil {
-		return fmt.Errorf("get base annotations: %w", err)
-	}
-
-	g, err := igen.NewFromImage(toImage(config.Config, imageMeta))
-	if err != nil {
-		return fmt.Errorf("create new generator: %w", err)
-	}
-
-	if ctx.IsSet("clear") {
-		for _, key := range ctx.StringSlice("clear") {
-			switch key {
-			case "config.labels":
-				g.ClearConfigLabels()
-			case "manifest.annotations":
-				annotations = nil
-			case "config.exposedports":
-				g.ClearConfigExposedPorts()
-			case "config.env":
-				g.ClearConfigEnv()
-			case "config.volume":
-				g.ClearConfigVolumes()
-			case "rootfs.diffids":
-				// g.ClearRootfsDiffIDs()
-				return errors.New("--clear=rootfs.diffids is not safe")
-			case "config.cmd":
-				g.ClearConfigCmd()
-			case "config.entrypoint":
-				g.ClearConfigEntrypoint()
-			default:
-				return fmt.Errorf("unknown key to --clear: %s", key)
-			}
-		}
-	}
-
-	if ctx.IsSet("created") {
-		// How do we handle other formats?
-		created, err := time.Parse(igen.ISO8601, ctx.String("created"))
-		if err != nil {
-			return fmt.Errorf("parse --created: %w", err)
-		}
-		g.SetCreated(created)
-	}
-	if ctx.IsSet("author") {
-		g.SetAuthor(ctx.String("author"))
-	}
-	if ctx.IsSet("platform.os") {
-		g.SetPlatformOS(ctx.String("platform.os"))
-	}
-	if ctx.IsSet("platform.arch") {
-		g.SetPlatformArchitecture(ctx.String("platform.arch"))
-	}
-	if ctx.IsSet("platform.variant") {
-		g.SetPlatformVariant(ctx.String("platform.variant"))
-	}
-	if ctx.IsSet("config.user") {
-		g.SetConfigUser(ctx.String("config.user"))
-	}
-	if ctx.IsSet("config.stopsignal") {
-		g.SetConfigStopSignal(ctx.String("config.stopsignal"))
-	}
-	if ctx.IsSet("config.workingdir") {
-		g.SetConfigWorkingDir(ctx.String("config.workingdir"))
-	}
-	if ctx.IsSet("config.exposedports") {
-		for _, port := range ctx.StringSlice("config.exposedports") {
-			g.AddConfigExposedPort(port)
-		}
-	}
-	if ctx.IsSet("config.env") {
-		for _, env := range ctx.StringSlice("config.env") {
-			name, value, err := parseKV(env)
-			if err != nil {
-				return fmt.Errorf("config.env: %w", err)
-			}
-			g.AddConfigEnv(name, value)
-		}
-	}
-	// FIXME: This interface is weird.
-	if ctx.IsSet("config.entrypoint") {
-		g.SetConfigEntrypoint(ctx.StringSlice("config.entrypoint"))
-	}
-	// FIXME: This interface is weird.
-	if ctx.IsSet("config.cmd") {
-		g.SetConfigCmd(ctx.StringSlice("config.cmd"))
-	}
-	if ctx.IsSet("config.volume") {
-		for _, volume := range ctx.StringSlice("config.volume") {
-			g.AddConfigVolume(volume)
-		}
-	}
-	if ctx.IsSet("config.label") {
-		for _, label := range ctx.StringSlice("config.label") {
-			name, value, err := parseKV(label)
-			if err != nil {
-				return fmt.Errorf("config.label: %w", err)
-			}
-			g.AddConfigLabel(name, value)
-		}
-	}
-	if ctx.IsSet("manifest.annotation") {
-		if annotations == nil {
-			annotations = map[string]string{}
-		}
-		for _, label := range ctx.StringSlice("manifest.annotation") {
-			parts := strings.SplitN(label, "=", 2)
-			annotations[parts[0]] = parts[1]
-		}
-	}
-
-	sourceDateEpoch, err := parseSourceDateEpoch()
-	if err != nil {
-		return err
-	}
-
-	var history *ispec.History
-	if !ctx.Bool("no-history") {
-		created := time.Now()
-		if sourceDateEpoch != nil {
-			created = *sourceDateEpoch
-		}
-		history = &ispec.History{
-			Author:     g.Author(),
-			Comment:    "",
-			Created:    &created,
-			CreatedBy:  "umoci config",
-			EmptyLayer: true,
-		}
-
-		if ctx.IsSet("history.author") {
-			history.Author = ctx.String("history.author")
-		}
-		if ctx.IsSet("history.comment") {
-			history.Comment = ctx.String("history.comment")
-		}
-		// If set, takes precedence over SOURCE_DATE_EPOCH.
-		if ctx.IsSet("history.created") {
-			created, err := time.Parse(igen.ISO8601, ctx.String("history.created"))
-			if err != nil {
-				return fmt.Errorf("parsing --history.created: %w", err)
-			}
-			history.Created = &created
-		}
-		if ctx.IsSet("history.created_by") {
-			history.CreatedBy = ctx.String("history.created_by")
-		}
-	}
-
-	newConfig, newMeta := fromImage(g.Image())
-	if err := mutator.Set(context.Background(), newConfig, newMeta, annotations, history); err != nil {
-		return fmt.Errorf("set modified configuration: %w", err)
-	}
-
-	newDescriptorPath, err := mutator.Commit(context.Background())
-	if err != nil {
-		return fmt.Errorf("commit mutated image: %w", err)
-	}
-
-	log.Infof("new image manifest created: %s->%s", newDescriptorPath.Root().Digest, newDescriptorPath.Descriptor().Digest)
-
-	if err := engineExt.UpdateReference(context.Background(), tagName, newDescriptorPath.Root()); err != nil {
-		return fmt.Errorf("add new tag: %w", err)
-	}
-
-	log.Infof("created new tag for image manifest: %s", tagName)
-	return nil
-}
+// If set, takes precedence over SOURCE_DATE_EPOCH.

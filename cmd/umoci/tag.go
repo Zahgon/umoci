@@ -20,15 +20,10 @@
 package main
 
 import (
-	"context"
 	"errors"
-	"fmt"
 
-	"github.com/apex/log"
 	"github.com/urfave/cli"
 
-	"github.com/opencontainers/umoci/internal/funchelpers"
-	"github.com/opencontainers/umoci/oci/cas/dir"
 	"github.com/opencontainers/umoci/oci/casext"
 )
 
@@ -60,41 +55,15 @@ the tag and "<new-tag>" is the new name of the tag.`,
 	},
 }
 
-func tagAdd(ctx *cli.Context) (Err error) {
-	imagePath := mustFetchMeta[string](ctx, "--image-path")
-	fromName := mustFetchMeta[string](ctx, "--image-tag")
-	tagName := mustFetchMeta[string](ctx, "new-tag")
+func tagAdd(ctx *cli.Context) (Err error) { _ = "STUB: not implemented"; return nil }
 
-	// Get a reference to the CAS.
-	engine, err := dir.Open(imagePath)
-	if err != nil {
-		return fmt.Errorf("open CAS: %w", err)
-	}
-	engineExt := casext.NewEngine(engine)
-	defer funchelpers.VerifyClose(&Err, engine)
+// Get a reference to the CAS.
 
-	// Get original descriptor.
-	descriptorPaths, err := engineExt.ResolveReference(context.Background(), fromName)
-	if err != nil {
-		return fmt.Errorf("get descriptor: %w", err)
-	}
-	if len(descriptorPaths) == 0 {
-		return fmt.Errorf("tag not found: %s", fromName)
-	}
-	if len(descriptorPaths) != 1 {
-		// TODO: Handle this more nicely.
-		return fmt.Errorf("tag is ambiguous: %s", fromName)
-	}
-	descriptor := descriptorPaths[0].Descriptor()
+// Get original descriptor.
 
-	// Add it.
-	if err := engineExt.UpdateReference(context.Background(), tagName, descriptor); err != nil {
-		return fmt.Errorf("put reference: %w", err)
-	}
+// TODO: Handle this more nicely.
 
-	log.Infof("created new tag: %q -> %q", tagName, fromName)
-	return nil
-}
+// Add it.
 
 var tagRemoveCommand = cli.Command{
 	Name:    "remove",
@@ -119,26 +88,11 @@ tag to remove.`,
 	Action: tagRemove,
 }
 
-func tagRemove(ctx *cli.Context) (Err error) {
-	imagePath := mustFetchMeta[string](ctx, "--image-path")
-	tagName := mustFetchMeta[string](ctx, "--image-tag")
+func tagRemove(ctx *cli.Context) (Err error) { _ = "STUB: not implemented"; return nil }
 
-	// Get a reference to the CAS.
-	engine, err := dir.Open(imagePath)
-	if err != nil {
-		return fmt.Errorf("open CAS: %w", err)
-	}
-	engineExt := casext.NewEngine(engine)
-	defer funchelpers.VerifyClose(&Err, engine)
+// Get a reference to the CAS.
 
-	// Remove it.
-	if err := engineExt.DeleteReference(context.Background(), tagName); err != nil {
-		return fmt.Errorf("delete reference: %w", err)
-	}
-
-	log.Infof("removed tag: %s", tagName)
-	return nil
-}
+// Remove it.
 
 var tagListCommand = cli.Command{
 	Name:    "list",
@@ -164,24 +118,6 @@ line. See umoci-stat(1) to get more information about each tagged image.`,
 	Action: tagList,
 }
 
-func tagList(ctx *cli.Context) (Err error) {
-	imagePath := mustFetchMeta[string](ctx, "--image-path")
+func tagList(ctx *cli.Context) (Err error) { _ = "STUB: not implemented"; return nil }
 
-	// Get a reference to the CAS.
-	engine, err := dir.Open(imagePath)
-	if err != nil {
-		return fmt.Errorf("open CAS: %w", err)
-	}
-	engineExt := casext.NewEngine(engine)
-	defer funchelpers.VerifyClose(&Err, engine)
-
-	names, err := engineExt.ListReferences(context.Background())
-	if err != nil {
-		return fmt.Errorf("list references: %w", err)
-	}
-
-	for _, name := range names {
-		fmt.Println(name)
-	}
-	return nil
-}
+// Get a reference to the CAS.

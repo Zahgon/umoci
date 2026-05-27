@@ -26,9 +26,6 @@ import (
 
 	"github.com/vbatts/go-mtree"
 	"golang.org/x/sys/unix"
-
-	"github.com/opencontainers/umoci/internal/funchelpers"
-	"github.com/opencontainers/umoci/internal/system"
 )
 
 // Default is the "identity" form of FsEval. In particular, it does not do any
@@ -42,112 +39,127 @@ type osFsEval int
 
 // Open is equivalent to os.Open.
 func (fs osFsEval) Open(path string) (*os.File, error) {
-	return os.Open(path)
+	_ = "STUB: not implemented"
+	return nil,
+
+		// Create is equivalent to os.Create.
+		nil
 }
 
-// Create is equivalent to os.Create.
 func (fs osFsEval) Create(path string) (*os.File, error) {
-	return os.Create(path)
+	_ = "STUB: not implemented"
+	return nil,
+
+		// Readdir is equivalent to os.Readdir.
+		nil
 }
 
-// Readdir is equivalent to os.Readdir.
 func (fs osFsEval) Readdir(path string) (_ []os.FileInfo, Err error) {
-	fh, err := os.Open(path)
-	if err != nil {
-		return nil, err
-	}
-	defer funchelpers.VerifyClose(&Err, fh)
-	return fh.Readdir(-1)
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // Lstat is equivalent to os.Lstat.
 func (fs osFsEval) Lstat(path string) (os.FileInfo, error) {
-	return os.Lstat(path)
+	_ = "STUB: not implemented"
+	return *
+
+	// Lstatx is equivalent to unix.Lstat.
+	new(os.FileInfo), nil
 }
 
-// Lstatx is equivalent to unix.Lstat.
 func (fs osFsEval) Lstatx(path string) (unix.Stat_t, error) {
-	var s unix.Stat_t
-	err := unix.Lstat(path, &s)
-	return s, err
+	_ = "STUB: not implemented"
+	return *new(unix.Stat_t), nil
 }
 
 // Readlink is equivalent to os.Readlink.
 func (fs osFsEval) Readlink(path string) (string, error) {
-	return os.Readlink(path)
+	_ = "STUB: not implemented"
+	return "",
+
+		// Symlink is equivalent to os.Symlink.
+		nil
 }
 
-// Symlink is equivalent to os.Symlink.
-func (fs osFsEval) Symlink(target, linkname string) error {
-	return os.Symlink(target, linkname)
-}
+func (fs osFsEval) Symlink(target, linkname string) error { _ = "STUB: not implemented"; return nil }
 
 // Link is equivalent to unix.Link(..., ~AT_SYMLINK_FOLLOW).
 func (fs osFsEval) Link(target, linkname string) error {
+	_ = "STUB: not implemented"
 	// We need to explicitly pass 0 as a flag because POSIX allows the default
 	// behaviour of link(2) when it comes to target being a symlink to be
 	// implementation-defined. Only linkat(2) allows us to guarantee the right
 	// behaviour.
-	//  <https://pubs.opengroup.org/onlinepubs/9699919799/functions/link.html>
-	return unix.Linkat(unix.AT_FDCWD, target, unix.AT_FDCWD, linkname, 0)
+	//
+	//	<https://pubs.opengroup.org/onlinepubs/9699919799/functions/link.html>
+	return nil
 }
 
 // Chmod is equivalent to os.Chmod.
 func (fs osFsEval) Chmod(path string, mode os.FileMode) error {
-	return os.Chmod(path, mode)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // Lutimes is equivalent to os.Lutimes.
 func (fs osFsEval) Lutimes(path string, atime, mtime time.Time) error {
-	return system.Lutimes(path, atime, mtime)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // RemoveAll is equivalent to os.RemoveAll.
-func (fs osFsEval) RemoveAll(path string) error {
-	return os.RemoveAll(path)
-}
+func (fs osFsEval) RemoveAll(path string) error { _ = "STUB: not implemented"; return nil }
 
 // Mknod is equivalent to unix.Mknod.
 func (fs osFsEval) Mknod(path string, mode os.FileMode, dev uint64) error {
-	return system.Mknod(path, uint32(mode), dev)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // MkdirAll is equivalent to os.MkdirAll.
 func (fs osFsEval) MkdirAll(path string, perm os.FileMode) error {
-	return os.MkdirAll(path, perm)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // Llistxattr is equivalent to system.Llistxattr.
 func (fs osFsEval) Llistxattr(path string) ([]string, error) {
-	return system.Llistxattr(path)
+	_ = "STUB: not implemented"
+	return nil, nil
+
+	// Lremovexattr is equivalent to system.Lremovexattr.
 }
 
-// Lremovexattr is equivalent to system.Lremovexattr.
-func (fs osFsEval) Lremovexattr(path, name string) error {
-	return unix.Lremovexattr(path, name)
-}
+func (fs osFsEval) Lremovexattr(path, name string) error { _ = "STUB: not implemented"; return nil }
 
 // Lsetxattr is equivalent to system.Lsetxattr.
 func (fs osFsEval) Lsetxattr(path, name string, value []byte, flags int) error {
-	return unix.Lsetxattr(path, name, value, flags)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // Lgetxattr is equivalent to system.Lgetxattr.
 func (fs osFsEval) Lgetxattr(path, name string) ([]byte, error) {
-	return system.Lgetxattr(path, name)
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // Lclearxattrs is equivalent to system.Lclearxattrs.
 func (fs osFsEval) Lclearxattrs(path string, skipFn func(xattrName string) bool) error {
-	return system.Lclearxattrs(path, skipFn)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // KeywordFunc returns a wrapper around the given mtree.KeywordFunc.
 func (fs osFsEval) KeywordFunc(fn mtree.KeywordFunc) mtree.KeywordFunc {
-	return fn
+	_ = "STUB: not implemented"
+
+	// Walk is equivalent to filepath.Walk.
+	return *new(mtree.KeywordFunc)
 }
 
-// Walk is equivalent to filepath.Walk.
 func (fs osFsEval) Walk(root string, fn filepath.WalkFunc) error {
-	return filepath.Walk(root, fn)
+	_ = "STUB: not implemented"
+	return nil
 }

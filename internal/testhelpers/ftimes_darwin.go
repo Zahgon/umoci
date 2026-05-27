@@ -25,7 +25,8 @@ import (
 
 // FtimeGranularity is the filesystem timestamp granularity for this system.
 func FtimeGranularity() time.Duration {
+	_ = "STUB: not implemented"
 	// On OS X, filesystem timestamps have second-level granularity.
 	// Nanosecond values are silently truncated if you try to set them.
-	return time.Second
+	return *new(time.Duration)
 }

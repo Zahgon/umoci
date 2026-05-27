@@ -21,10 +21,6 @@
 package idtools
 
 import (
-	"fmt"
-	"strconv"
-	"strings"
-
 	rspec "github.com/opencontainers/runtime-spec/specs-go"
 )
 
@@ -32,17 +28,8 @@ import (
 // provided ID mapping. If no mapping is provided, then the mapping is a no-op.
 // If there is no mapping for the given ID an error is returned.
 func ToHost(contID int, idMap []rspec.LinuxIDMapping) (int, error) {
-	if idMap == nil {
-		return contID, nil
-	}
-
-	for _, m := range idMap {
-		if uint32(contID) >= m.ContainerID && uint32(contID) < m.ContainerID+m.Size {
-			return int(m.HostID + (uint32(contID) - m.ContainerID)), nil
-		}
-	}
-
-	return -1, fmt.Errorf("container id %d cannot be mapped to a host id", contID)
+	_ = "STUB: not implemented"
+	return 0, nil
 }
 
 // ToContainer takes an unmapped host ID and translates it to a remapped
@@ -50,58 +37,17 @@ func ToHost(contID int, idMap []rspec.LinuxIDMapping) (int, error) {
 // the mapping is a no-op. If there is no mapping for the given ID an error is
 // returned.
 func ToContainer(hostID int, idMap []rspec.LinuxIDMapping) (int, error) {
-	if idMap == nil {
-		return hostID, nil
-	}
-
-	for _, m := range idMap {
-		if uint32(hostID) >= m.HostID && uint32(hostID) < m.HostID+m.Size {
-			return int(m.ContainerID + (uint32(hostID) - m.HostID)), nil
-		}
-	}
-
-	return -1, fmt.Errorf("host id %d cannot be mapped to a container id", hostID)
+	_ = "STUB: not implemented"
+	return 0, nil
 }
 
 // Helper to return a uint32 from strconv.ParseUint type-safely.
-func parseUint32(str string) (uint32, error) {
-	val, err := strconv.ParseUint(str, 10, 32)
-	return uint32(val), err
-}
+func parseUint32(str string) (uint32, error) { _ = "STUB: not implemented"; return 0, nil }
 
 // ParseMapping takes a mapping string of the form "container:host[:size]" and
 // returns the corresponding rspec.LinuxIDMapping. An error is returned if not
 // enough fields are provided or are otherwise invalid. The default size is 1.
 func ParseMapping(spec string) (rspec.LinuxIDMapping, error) {
-	parts := strings.Split(spec, ":")
-
-	var err error
-	var hostID, contID, size uint32
-	switch len(parts) {
-	case 3:
-		size, err = parseUint32(parts[2])
-		if err != nil {
-			return rspec.LinuxIDMapping{}, fmt.Errorf("invalid size in mapping: %w", err)
-		}
-	case 2:
-		size = 1
-	default:
-		return rspec.LinuxIDMapping{}, fmt.Errorf("invalid number of fields in mapping %q: %d", spec, len(parts))
-	}
-
-	contID, err = parseUint32(parts[0])
-	if err != nil {
-		return rspec.LinuxIDMapping{}, fmt.Errorf("invalid containerID in mapping: %w", err)
-	}
-
-	hostID, err = parseUint32(parts[1])
-	if err != nil {
-		return rspec.LinuxIDMapping{}, fmt.Errorf("invalid hostID in mapping: %w", err)
-	}
-
-	return rspec.LinuxIDMapping{
-		HostID:      hostID,
-		ContainerID: contID,
-		Size:        size,
-	}, nil
+	_ = "STUB: not implemented"
+	return *new(rspec.LinuxIDMapping), nil
 }

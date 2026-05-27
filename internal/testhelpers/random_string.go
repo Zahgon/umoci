@@ -19,16 +19,5 @@
 
 package testhelpers
 
-import (
-	"math/rand"
-)
-
 // RandomString returns a pseudorandom alphabetical (mixed-case) string.
-func RandomString(n int) string {
-	const alpha = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
-	b := make([]byte, n)
-	for i := range b {
-		b[i] = alpha[rand.Intn(len(alpha))]
-	}
-	return string(b)
-}
+func RandomString(n int) string { _ = "STUB: not implemented"; return "" }

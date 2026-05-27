@@ -20,15 +20,12 @@
 package fseval
 
 import (
-	"io"
 	"os"
 	"path/filepath"
 	"time"
 
 	"github.com/vbatts/go-mtree"
 	"golang.org/x/sys/unix"
-
-	"github.com/opencontainers/umoci/pkg/unpriv"
 )
 
 // Rootless is an FsEval implementation that uses "umoci/pkg/unpriv".*
@@ -43,107 +40,118 @@ type unprivFsEval int
 
 // Open is equivalent to unpriv.Open.
 func (fs unprivFsEval) Open(path string) (*os.File, error) {
-	return unpriv.Open(path)
+	_ = "STUB: not implemented"
+	return nil,
+
+		// Create is equivalent to unpriv.Create.
+		nil
 }
 
-// Create is equivalent to unpriv.Create.
 func (fs unprivFsEval) Create(path string) (*os.File, error) {
-	return unpriv.Create(path)
+	_ = "STUB: not implemented"
+	return nil,
+
+		// Readdir is equivalent to unpriv.Readdir.
+		nil
 }
 
-// Readdir is equivalent to unpriv.Readdir.
 func (fs unprivFsEval) Readdir(path string) ([]os.FileInfo, error) {
-	return unpriv.Readdir(path)
+	_ = "STUB: not implemented"
+	return nil,
+
+		// Lstat is equivalent to unpriv.Lstat.
+		nil
 }
 
-// Lstat is equivalent to unpriv.Lstat.
 func (fs unprivFsEval) Lstat(path string) (os.FileInfo, error) {
-	return unpriv.Lstat(path)
+	_ = "STUB: not implemented"
+	return *new(os.FileInfo), nil
 }
 
 func (fs unprivFsEval) Lstatx(path string) (unix.Stat_t, error) {
-	return unpriv.Lstatx(path)
+	_ = "STUB: not implemented"
+	return *new(unix.Stat_t), nil
 }
 
 // Readlink is equivalent to unpriv.Readlink.
 func (fs unprivFsEval) Readlink(path string) (string, error) {
-	return unpriv.Readlink(path)
+	_ = "STUB: not implemented"
+	return "", nil
+
+	// Symlink is equivalent to unpriv.Symlink.
 }
 
-// Symlink is equivalent to unpriv.Symlink.
 func (fs unprivFsEval) Symlink(target, linkname string) error {
-	return unpriv.Symlink(target, linkname)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // Link is equivalent to unpriv.Link.
-func (fs unprivFsEval) Link(target, linkname string) error {
-	return unpriv.Link(target, linkname)
-}
+func (fs unprivFsEval) Link(target, linkname string) error { _ = "STUB: not implemented"; return nil }
 
 // Chmod is equivalent to unpriv.Chmod.
 func (fs unprivFsEval) Chmod(path string, mode os.FileMode) error {
-	return unpriv.Chmod(path, mode)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // Lutimes is equivalent to unpriv.Lutimes.
 func (fs unprivFsEval) Lutimes(path string, atime, mtime time.Time) error {
-	return unpriv.Lutimes(path, atime, mtime)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // RemoveAll is equivalent to unpriv.RemoveAll.
-func (fs unprivFsEval) RemoveAll(path string) error {
-	return unpriv.RemoveAll(path)
-}
+func (fs unprivFsEval) RemoveAll(path string) error { _ = "STUB: not implemented"; return nil }
 
 // Mknod is equivalent to unpriv.Mknod.
 func (fs unprivFsEval) Mknod(path string, mode os.FileMode, dev uint64) error {
-	return unpriv.Mknod(path, mode, dev)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // MkdirAll is equivalent to unpriv.MkdirAll.
 func (fs unprivFsEval) MkdirAll(path string, perm os.FileMode) error {
-	return unpriv.MkdirAll(path, perm)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // Llistxattr is equivalent to unpriv.Llistxattr.
 func (fs unprivFsEval) Llistxattr(path string) ([]string, error) {
-	return unpriv.Llistxattr(path)
+	_ = "STUB: not implemented"
+	return nil, nil
+
+	// Lremovexattr is equivalent to unpriv.Lremovexattr.
 }
 
-// Lremovexattr is equivalent to unpriv.Lremovexattr.
-func (fs unprivFsEval) Lremovexattr(path, name string) error {
-	return unpriv.Lremovexattr(path, name)
-}
+func (fs unprivFsEval) Lremovexattr(path, name string) error { _ = "STUB: not implemented"; return nil }
 
 // Lsetxattr is equivalent to unpriv.Lsetxattr.
 func (fs unprivFsEval) Lsetxattr(path, name string, value []byte, flags int) error {
-	return unpriv.Lsetxattr(path, name, value, flags)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // Lgetxattr is equivalent to unpriv.Lgetxattr.
 func (fs unprivFsEval) Lgetxattr(path, name string) ([]byte, error) {
-	return unpriv.Lgetxattr(path, name)
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // Lclearxattrs is equivalent to unpriv.Lclearxattrs.
 func (fs unprivFsEval) Lclearxattrs(path string, skipFn func(xattrName string) bool) error {
-	return unpriv.Lclearxattrs(path, skipFn)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // KeywordFunc returns a wrapper around the given mtree.KeywordFunc.
 func (fs unprivFsEval) KeywordFunc(fn mtree.KeywordFunc) mtree.KeywordFunc {
-	return func(path string, info os.FileInfo, r io.Reader) ([]mtree.KeyVal, error) {
-		var kv []mtree.KeyVal
-		err := unpriv.Wrap(path, func(path string) error {
-			var err error
-			kv, err = fn(path, info, r)
-			return err
-		})
-		return kv, err
-	}
+	_ = "STUB: not implemented"
+	return *new(mtree.KeywordFunc)
 }
 
 // Walk is equivalent to filepath.Walk.
 func (fs unprivFsEval) Walk(root string, fn filepath.WalkFunc) error {
-	return unpriv.Walk(root, fn)
+	_ = "STUB: not implemented"
+	return nil
 }

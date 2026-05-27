@@ -23,29 +23,15 @@ import (
 	"context"
 	"errors"
 
-	"github.com/apex/log"
 	"github.com/opencontainers/go-digest"
 	ispec "github.com/opencontainers/image-spec/specs-go/v1"
-
-	"github.com/opencontainers/umoci/internal/assert"
-	"github.com/opencontainers/umoci/internal/funchelpers"
-	"github.com/opencontainers/umoci/oci/cas"
-	"github.com/opencontainers/umoci/oci/casext/mediatype"
 )
 
 // childDescriptors is a wrapper around MapDescriptors which just creates a
 // slice of all of the arguments, and doesn't modify them.
-func childDescriptors(i any) []ispec.Descriptor {
-	var children []ispec.Descriptor
-	if err := MapDescriptors(i, func(descriptor ispec.Descriptor) ispec.Descriptor {
-		children = append(children, descriptor)
-		return descriptor
-	}); err != nil {
-		// If we got an error, this is a bug in MapDescriptors proper.
-		log.Fatalf("[internal error] MapDescriptors returned an error inside childDescriptors: %+v", err)
-	}
-	return children
-}
+func childDescriptors(i any) []ispec.Descriptor { _ = "STUB: not implemented"; return nil }
+
+// If we got an error, this is a bug in MapDescriptors proper.
 
 // walkState stores state information about the recursion into a given
 // descriptor tree.
@@ -74,8 +60,8 @@ type DescriptorPath struct {
 // the walk started. This is just shorthand for DescriptorPath.Walk[0]. Root
 // will *panic* if DescriptorPath is invalid.
 func (d DescriptorPath) Root() ispec.Descriptor {
-	assert.Assert(len(d.Walk) > 0, "empty DescriptorPath")
-	return d.Walk[0]
+	_ = "STUB: not implemented"
+	return *new(ispec.Descriptor)
 }
 
 // Descriptor returns the final step in the DescriptorPath, which is the target
@@ -83,8 +69,8 @@ func (d DescriptorPath) Root() ispec.Descriptor {
 // accessing the last entry of DescriptorPath.Walk. Descriptor will *panic* if
 // DescriptorPath is invalid.
 func (d DescriptorPath) Descriptor() ispec.Descriptor {
-	assert.Assert(len(d.Walk) > 0, "empty DescriptorPath")
-	return d.Walk[len(d.Walk)-1]
+	_ = "STUB: not implemented"
+	return *new(ispec.Descriptor)
 }
 
 // ErrSkipDescriptor is a special error returned by WalkFunc which will cause
@@ -105,75 +91,32 @@ var ErrSkipDescriptor = errors.New("[internal] do not recurse into descriptor")
 type WalkFunc func(descriptorPath DescriptorPath) error
 
 func (ws *walkState) recurse(ctx context.Context, descriptorPath DescriptorPath) (Err error) {
-	log.WithFields(log.Fields{
-		"digest": descriptorPath.Descriptor().Digest,
-	}).Debugf("-> ws.recurse")
-	defer log.WithFields(log.Fields{
-		"digest": descriptorPath.Descriptor().Digest,
-	}).Debugf("<- ws.recurse")
-
-	// Run walkFunc.
-	if err := ws.walkFunc(descriptorPath); err != nil {
-		if errors.Is(err, ErrSkipDescriptor) {
-			return nil
-		}
-		return err
-	}
-
-	// Get blob to recurse into.
-	descriptor := descriptorPath.Descriptor()
-
-	// Since FromDescriptor gives us a full VerifiedReadCloser (meaning that
-	// Close is expensive if we don't read any bytes), we should only try to
-	// recurse into this thing if we actually can parse it.
-	if mediatype.GetParser(descriptor.MediaType) == nil {
-		log.Infof("skipping walk into non-parseable media-type %v of blob %v", descriptor.MediaType, descriptor.Digest)
-		return nil
-	}
-
-	// Recurse into the blob now.
-	blob, err := ws.engine.FromDescriptor(ctx, descriptor)
-	if err != nil {
-		// Ignore cases where the descriptor points to an object we don't know
-		// how to parse.
-		if errors.Is(err, cas.ErrUnknownType) {
-			log.Infof("skipping walk into unknown media-type %v of blob %v", descriptor.MediaType, descriptor.Digest)
-			return nil
-		}
-		return err
-	}
-	defer funchelpers.VerifyError(&Err, func() error {
-		err := blob.Close()
-		if err != nil {
-			log.Warnf("during recursion blob %v had error on Close: %v", descriptor.Digest, err)
-		}
-		return err
-	})
-
-	// Recurse into children.
-	for _, child := range childDescriptors(blob.Data) {
-		if err := ws.recurse(ctx, DescriptorPath{
-			Walk: append(descriptorPath.Walk, child),
-		}); err != nil {
-			return err
-		}
-	}
-
+	_ = "STUB: not implemented"
 	return nil
 }
+
+// Run walkFunc.
+
+// Get blob to recurse into.
+
+// Since FromDescriptor gives us a full VerifiedReadCloser (meaning that
+// Close is expensive if we don't read any bytes), we should only try to
+// recurse into this thing if we actually can parse it.
+
+// Recurse into the blob now.
+
+// Ignore cases where the descriptor points to an object we don't know
+// how to parse.
+
+// Recurse into children.
 
 // Walk preforms a depth-first walk from a given root descriptor, using the
 // provided CAS engine to fetch all other necessary descriptors. If an error is
 // returned by the provided WalkFunc, walking is terminated and the error is
 // returned to the caller.
 func (e Engine) Walk(ctx context.Context, root ispec.Descriptor, walkFunc WalkFunc) error {
-	ws := &walkState{
-		engine:   e,
-		walkFunc: walkFunc,
-	}
-	return ws.recurse(ctx, DescriptorPath{
-		Walk: []ispec.Descriptor{root},
-	})
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // reachable returns the set of digests which can be reached using a descriptor
@@ -185,21 +128,8 @@ func (e Engine) Walk(ctx context.Context, root ispec.Descriptor, walkFunc WalkFu
 // and any use outside of GC() should be carefully considered (you probably
 // want to use Walk directly).
 func (e Engine) reachable(ctx context.Context, root ispec.Descriptor) ([]digest.Digest, error) {
-	seen := map[digest.Digest]struct{}{}
-	if err := e.Walk(ctx, root, func(descriptorPath DescriptorPath) error {
-		digest := descriptorPath.Descriptor().Digest
-		if _, ok := seen[digest]; ok {
-			// Don't traverse further if we've already seen this digest.
-			return ErrSkipDescriptor
-		}
-		seen[digest] = struct{}{}
-		return nil
-	}); err != nil {
-		return nil, err
-	}
-	reachable := make([]digest.Digest, 0, len(seen))
-	for node := range seen {
-		reachable = append(reachable, node)
-	}
-	return reachable, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
+
+// Don't traverse further if we've already seen this digest.

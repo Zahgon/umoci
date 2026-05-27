@@ -21,14 +21,8 @@ package main
 
 import (
 	"errors"
-	"fmt"
 
 	"github.com/urfave/cli"
-
-	"github.com/opencontainers/umoci"
-	"github.com/opencontainers/umoci/internal/funchelpers"
-	"github.com/opencontainers/umoci/oci/cas/dir"
-	"github.com/opencontainers/umoci/oci/casext"
 )
 
 var newCommand = cli.Command{
@@ -57,22 +51,6 @@ needing a base image to start from.`,
 	Action: newImage,
 }
 
-func newImage(ctx *cli.Context) (Err error) {
-	imagePath := mustFetchMeta[string](ctx, "--image-path")
-	tagName := mustFetchMeta[string](ctx, "--image-tag")
+func newImage(ctx *cli.Context) (Err error) { _ = "STUB: not implemented"; return nil }
 
-	sourceDateEpoch, err := parseSourceDateEpoch()
-	if err != nil {
-		return err
-	}
-
-	// Get a reference to the CAS.
-	engine, err := dir.Open(imagePath)
-	if err != nil {
-		return fmt.Errorf("open CAS: %w", err)
-	}
-	engineExt := casext.NewEngine(engine)
-	defer funchelpers.VerifyClose(&Err, engine)
-
-	return umoci.NewImage(engineExt, tagName, sourceDateEpoch)
-}
+// Get a reference to the CAS.

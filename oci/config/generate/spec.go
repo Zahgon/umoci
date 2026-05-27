@@ -24,10 +24,6 @@
 package generate
 
 import (
-	"fmt"
-	"maps"
-	"slices"
-	"strings"
 	"time"
 
 	"github.com/opencontainers/go-digest"
@@ -78,218 +74,157 @@ func (g *Generator) init() {
 // not recommended to leave any of the options as their default values (they
 // may change in the future without warning and may be invalid images).
 func New() *Generator {
+	_ = "STUB: not implemented"
 	// FIXME: Come up with some sane default.
-	g := &Generator{
-		image: ispec.Image{},
-	}
-	g.init()
-	return g
+	return nil
 }
 
 // NewFromImage generates a new generator with the initial template being the
 // given ispec.Image.
 func NewFromImage(image ispec.Image) (*Generator, error) {
-	g := &Generator{
-		image: image,
-	}
-
-	g.init()
-	return g, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // Image returns a copy of the current state of the generated image.
 func (g *Generator) Image() ispec.Image {
-	return g.image
+	_ = "STUB: not implemented"
+
+	// SetConfigUser sets the username or UID which the process in the container should run as.
+	return *new(ispec.Image)
 }
 
-// SetConfigUser sets the username or UID which the process in the container should run as.
-func (g *Generator) SetConfigUser(user string) {
-	g.image.Config.User = user
-}
+func (g *Generator) SetConfigUser(user string) { _ = "STUB: not implemented"; return }
 
 // ConfigUser returns the username or UID which the process in the container should run as.
-func (g *Generator) ConfigUser() string {
-	return g.image.Config.User
-}
+func (g *Generator) ConfigUser() string { _ = "STUB: not implemented"; return "" }
 
 // ClearConfigExposedPorts clears the set of ports to expose from a container running this image.
-func (g *Generator) ClearConfigExposedPorts() {
-	g.image.Config.ExposedPorts = map[string]struct{}{}
-}
+func (g *Generator) ClearConfigExposedPorts() { _ = "STUB: not implemented"; return }
 
 // AddConfigExposedPort adds a port the set of ports to expose from a container running this image.
-func (g *Generator) AddConfigExposedPort(port string) {
-	g.image.Config.ExposedPorts[port] = struct{}{}
-}
+func (g *Generator) AddConfigExposedPort(port string) { _ = "STUB: not implemented"; return }
 
 // RemoveConfigExposedPort removes a port the set of ports to expose from a container running this image.
-func (g *Generator) RemoveConfigExposedPort(port string) {
-	delete(g.image.Config.ExposedPorts, port)
-}
+func (g *Generator) RemoveConfigExposedPort(port string) { _ = "STUB: not implemented"; return }
 
 // ConfigExposedPorts returns the set of ports to expose from a container running this image.
-func (g *Generator) ConfigExposedPorts() []string {
-	return slices.Sorted(maps.Keys(g.image.Config.ExposedPorts))
-}
+func (g *Generator) ConfigExposedPorts() []string { _ = "STUB: not implemented"; return nil }
 
 // ClearConfigEnv clears the list of environment variables to be used in a container.
-func (g *Generator) ClearConfigEnv() {
-	g.image.Config.Env = []string{}
-}
+func (g *Generator) ClearConfigEnv() { _ = "STUB: not implemented"; return }
 
 // AddConfigEnv appends to the list of environment variables to be used in a container.
 func (g *Generator) AddConfigEnv(name, value string) {
+	_ = "STUB: not implemented"
 	// If the key already exists in the environment set, we replace it.
 	// This ensures we don't run into POSIX undefined territory.
-	env := fmt.Sprintf("%s=%s", name, value)
-	for idx := range g.image.Config.Env {
-		if strings.HasPrefix(g.image.Config.Env[idx], name+"=") {
-			g.image.Config.Env[idx] = env
-			return
-		}
-	}
-	g.image.Config.Env = append(g.image.Config.Env, env)
+	return
 }
 
 // ConfigEnv returns the list of environment variables to be used in a container.
 func (g *Generator) ConfigEnv() []string {
+	_ = "STUB: not implemented"
 	// We have to make a copy to preserve the privacy of g.image.Config.
-	return slices.Clone(g.image.Config.Env)
+	return nil
 }
 
 // ClearConfigEntrypoint clears the list of arguments to use as the command to execute when the container starts.
-func (g *Generator) ClearConfigEntrypoint() {
-	g.image.Config.Entrypoint = []string{}
-}
+func (g *Generator) ClearConfigEntrypoint() { _ = "STUB: not implemented"; return }
 
 // SetConfigEntrypoint sets the list of arguments to use as the command to execute when the container starts.
-func (g *Generator) SetConfigEntrypoint(entrypoint []string) {
-	g.image.Config.Entrypoint = slices.Clone(entrypoint)
-}
+func (g *Generator) SetConfigEntrypoint(entrypoint []string) { _ = "STUB: not implemented"; return }
 
 // ConfigEntrypoint returns the list of arguments to use as the command to execute when the container starts.
 func (g *Generator) ConfigEntrypoint() []string {
+	_ = "STUB: not implemented"
 	// We have to make a copy to preserve the privacy of g.image.Config.
-	return slices.Clone(g.image.Config.Entrypoint)
+	return nil
 }
 
 // ClearConfigCmd clears the list of default arguments to the entrypoint of the container.
-func (g *Generator) ClearConfigCmd() {
-	g.image.Config.Cmd = []string{}
-}
+func (g *Generator) ClearConfigCmd() { _ = "STUB: not implemented"; return }
 
 // SetConfigCmd sets the list of default arguments to the entrypoint of the container.
-func (g *Generator) SetConfigCmd(cmd []string) {
-	g.image.Config.Cmd = slices.Clone(cmd)
-}
+func (g *Generator) SetConfigCmd(cmd []string) { _ = "STUB: not implemented"; return }
 
 // ConfigCmd returns the list of default arguments to the entrypoint of the container.
 func (g *Generator) ConfigCmd() []string {
+	_ = "STUB: not implemented"
 	// We have to make a copy to preserve the privacy of g.image.Config.
-	return slices.Clone(g.image.Config.Cmd)
+	return nil
 }
 
 // ClearConfigVolumes clears the set of directories which should be created as data volumes in a container running this image.
-func (g *Generator) ClearConfigVolumes() {
-	g.image.Config.Volumes = map[string]struct{}{}
-}
+func (g *Generator) ClearConfigVolumes() { _ = "STUB: not implemented"; return }
 
 // AddConfigVolume adds a volume to the set of directories which should be created as data volumes in a container running this image.
-func (g *Generator) AddConfigVolume(volume string) {
-	g.image.Config.Volumes[volume] = struct{}{}
-}
+func (g *Generator) AddConfigVolume(volume string) { _ = "STUB: not implemented"; return }
 
 // RemoveConfigVolume removes a volume from the set of directories which should be created as data volumes in a container running this image.
-func (g *Generator) RemoveConfigVolume(volume string) {
-	delete(g.image.Config.Volumes, volume)
-}
+func (g *Generator) RemoveConfigVolume(volume string) { _ = "STUB: not implemented"; return }
 
 // ConfigVolumes returns the set of directories which should be created as data volumes in a container running this image.
-func (g *Generator) ConfigVolumes() []string {
-	return slices.Sorted(maps.Keys(g.image.Config.Volumes))
-}
+func (g *Generator) ConfigVolumes() []string { _ = "STUB: not implemented"; return nil }
 
 // ClearConfigLabels clears the set of arbitrary metadata for the container.
-func (g *Generator) ClearConfigLabels() {
-	g.image.Config.Labels = map[string]string{}
-}
+func (g *Generator) ClearConfigLabels() { _ = "STUB: not implemented"; return }
 
 // AddConfigLabel adds a label to the set of arbitrary metadata for the container.
-func (g *Generator) AddConfigLabel(label, value string) {
-	g.image.Config.Labels[label] = value
-}
+func (g *Generator) AddConfigLabel(label, value string) { _ = "STUB: not implemented"; return }
 
 // RemoveConfigLabel removes a label from the set of arbitrary metadata for the container.
-func (g *Generator) RemoveConfigLabel(label string) {
-	delete(g.image.Config.Labels, label)
-}
+func (g *Generator) RemoveConfigLabel(label string) { _ = "STUB: not implemented"; return }
 
 // ConfigLabels returns the set of arbitrary metadata for the container.
 func (g *Generator) ConfigLabels() map[string]string {
+	_ = "STUB: not implemented"
 	// We have to make a copy to preserve the privacy of g.image.Config.
-	return maps.Clone(g.image.Config.Labels)
+	return nil
 }
 
 // SetConfigWorkingDir sets the current working directory of the entrypoint process in the container.
-func (g *Generator) SetConfigWorkingDir(workingDir string) {
-	g.image.Config.WorkingDir = workingDir
-}
+func (g *Generator) SetConfigWorkingDir(workingDir string) { _ = "STUB: not implemented"; return }
 
 // ConfigWorkingDir returns the current working directory of the entrypoint process in the container.
-func (g *Generator) ConfigWorkingDir() string {
-	return g.image.Config.WorkingDir
-}
+func (g *Generator) ConfigWorkingDir() string { _ = "STUB: not implemented"; return "" }
 
 // SetConfigStopSignal sets the system call signal that will be sent to the container to exit.
-func (g *Generator) SetConfigStopSignal(stopSignal string) {
-	g.image.Config.StopSignal = stopSignal
-}
+func (g *Generator) SetConfigStopSignal(stopSignal string) { _ = "STUB: not implemented"; return }
 
 // ConfigStopSignal returns the system call signal that will be sent to the container to exit.
-func (g *Generator) ConfigStopSignal() string {
-	return g.image.Config.StopSignal
-}
+func (g *Generator) ConfigStopSignal() string { _ = "STUB: not implemented"; return "" }
 
 // SetRootfsType sets the type of the rootfs.
-func (g *Generator) SetRootfsType(rootfsType string) {
-	g.image.RootFS.Type = rootfsType
-}
+func (g *Generator) SetRootfsType(rootfsType string) { _ = "STUB: not implemented"; return }
 
 // RootfsType returns the type of the rootfs.
-func (g *Generator) RootfsType() string {
-	return g.image.RootFS.Type
-}
+func (g *Generator) RootfsType() string { _ = "STUB: not implemented"; return "" }
 
 // ClearRootfsDiffIDs clears the array of layer content hashes (DiffIDs), in order from bottom-most to top-most.
-func (g *Generator) ClearRootfsDiffIDs() {
-	g.image.RootFS.DiffIDs = []digest.Digest{}
-}
+func (g *Generator) ClearRootfsDiffIDs() { _ = "STUB: not implemented"; return }
 
 // AddRootfsDiffID appends to the array of layer content hashes (DiffIDs), in order from bottom-most to top-most.
-func (g *Generator) AddRootfsDiffID(diffid digest.Digest) {
-	g.image.RootFS.DiffIDs = append(g.image.RootFS.DiffIDs, diffid)
-}
+func (g *Generator) AddRootfsDiffID(diffid digest.Digest) { _ = "STUB: not implemented"; return }
 
 // RootfsDiffIDs returns the the array of layer content hashes (DiffIDs), in order from bottom-most to top-most.
 func (g *Generator) RootfsDiffIDs() []digest.Digest {
+	_ = "STUB: not implemented"
 	// We have to make a copy to preserve the privacy of g.image.RootFS.
-	return append([]digest.Digest{}, g.image.RootFS.DiffIDs...)
+	return nil
 }
 
 // ClearHistory clears the history of each layer.
-func (g *Generator) ClearHistory() {
-	g.image.History = []ispec.History{}
-}
+func (g *Generator) ClearHistory() { _ = "STUB: not implemented"; return }
 
 // AddHistory appends to the history of the layers.
-func (g *Generator) AddHistory(history ispec.History) {
-	g.image.History = append(g.image.History, history)
-}
+func (g *Generator) AddHistory(history ispec.History) { _ = "STUB: not implemented"; return }
 
 // History returns the history of each layer.
 func (g *Generator) History() []ispec.History {
+	_ = "STUB: not implemented"
 	// We have to make a copy to preserve the privacy of g.image.History.
-	return append([]ispec.History{}, g.image.History...)
+	return nil
 }
 
 // ISO8601 represents the format of an ISO-8601 time string, which is identical
@@ -297,55 +232,41 @@ func (g *Generator) History() []ispec.History {
 const ISO8601 = time.RFC3339Nano
 
 // SetCreated sets the combined date and time at which the image was created.
-func (g *Generator) SetCreated(created time.Time) {
-	g.image.Created = &created
-}
+func (g *Generator) SetCreated(created time.Time) { _ = "STUB: not implemented"; return }
 
 // Created gets the combined date and time at which the image was created.
-func (g *Generator) Created() time.Time {
-	if g.image.Created == nil {
-		// TODO: Maybe we should be returning pointers?
-		return time.Time{}
-	}
-	return *g.image.Created
-}
+func (g *Generator) Created() time.Time { _ = "STUB: not implemented"; return *new(time.Time) }
+
+// TODO: Maybe we should be returning pointers?
 
 // SetAuthor sets the name and/or email address of the person or entity which created and is responsible for maintaining the image.
-func (g *Generator) SetAuthor(author string) {
-	g.image.Author = author
-}
+func (g *Generator) SetAuthor(author string) { _ = "STUB: not implemented"; return }
 
 // Author returns the name and/or email address of the person or entity which created and is responsible for maintaining the image.
-func (g *Generator) Author() string {
-	return g.image.Author
-}
+func (g *Generator) Author() string { _ = "STUB: not implemented"; return "" }
 
 // SetPlatformOS sets the name of the operating system which the image is built to run on.
 func (g *Generator) SetPlatformOS(os string) {
-	g.image.OS = os
+	_ = "STUB: not implemented"
+
+	// PlatformOS returns the name of the operating system which the image is built to run on.
+	return
 }
 
-// PlatformOS returns the name of the operating system which the image is built to run on.
 func (g *Generator) PlatformOS() string {
-	return g.image.OS
+	_ = "STUB: not implemented"
+
+	// SetPlatformArchitecture is the CPU architecture which the binaries in this image are built to run on.
+	return ""
 }
 
-// SetPlatformArchitecture is the CPU architecture which the binaries in this image are built to run on.
-func (g *Generator) SetPlatformArchitecture(arch string) {
-	g.image.Architecture = arch
-}
+func (g *Generator) SetPlatformArchitecture(arch string) { _ = "STUB: not implemented"; return }
 
 // PlatformArchitecture returns the CPU architecture which the binaries in this image are built to run on.
-func (g *Generator) PlatformArchitecture() string {
-	return g.image.Architecture
-}
+func (g *Generator) PlatformArchitecture() string { _ = "STUB: not implemented"; return "" }
 
 // SetPlatformVariant is the CPU architecture variant which the binaries in this image are built to run on.
-func (g *Generator) SetPlatformVariant(variant string) {
-	g.image.Variant = variant
-}
+func (g *Generator) SetPlatformVariant(variant string) { _ = "STUB: not implemented"; return }
 
 // PlatformVariant returns the CPU architecture variant which the binaries in this image are built to run on.
-func (g *Generator) PlatformVariant() string {
-	return g.image.Variant
-}
+func (g *Generator) PlatformVariant() string { _ = "STUB: not implemented"; return "" }

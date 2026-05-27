@@ -25,31 +25,20 @@
 package umoci
 
 import (
-	"fmt"
-
-	"github.com/opencontainers/umoci/oci/cas/dir"
 	"github.com/opencontainers/umoci/oci/casext"
 )
 
 // OpenLayout opens an existing OCI image layout, and fails if it does not
 // exist.
 func OpenLayout(imagePath string) (casext.Engine, error) {
+	_ = "STUB: not implemented"
 	// Get a reference to the CAS.
-	engine, err := dir.Open(imagePath)
-	if err != nil {
-		return casext.Engine{}, fmt.Errorf("open CAS: %w", err)
-	}
-
-	return casext.NewEngine(engine), nil
+	return *new(casext.Engine), nil
 }
 
 // CreateLayout creates an existing OCI image layout, and fails if it already
 // exists.
 func CreateLayout(imagePath string) (casext.Engine, error) {
-	err := dir.Create(imagePath)
-	if err != nil {
-		return casext.Engine{}, err
-	}
-
-	return OpenLayout(imagePath)
+	_ = "STUB: not implemented"
+	return *new(casext.Engine), nil
 }

@@ -21,7 +21,6 @@ package umoci
 
 import (
 	_ "embed" // for go:embed
-	"strings"
 )
 
 var (
@@ -34,13 +33,4 @@ var (
 )
 
 // FullVersion returns a fully-qualified version string if one is available.
-func FullVersion() string {
-	v := "unknown"
-	if version != "" {
-		v = strings.TrimSpace(version)
-	}
-	if gitCommit != "" {
-		v += "~git" + gitCommit
-	}
-	return v
-}
+func FullVersion() string { _ = "STUB: not implemented"; return "" }

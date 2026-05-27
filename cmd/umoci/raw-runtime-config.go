@@ -20,20 +20,9 @@
 package main
 
 import (
-	"context"
 	"errors"
-	"fmt"
-	"os"
 
-	"github.com/apex/log"
-	ispec "github.com/opencontainers/image-spec/specs-go/v1"
 	"github.com/urfave/cli"
-
-	"github.com/opencontainers/umoci"
-	"github.com/opencontainers/umoci/internal/funchelpers"
-	"github.com/opencontainers/umoci/oci/cas/dir"
-	"github.com/opencontainers/umoci/oci/casext"
-	"github.com/opencontainers/umoci/oci/layer"
 )
 
 var rawConfigCommand = uxRemap(cli.Command{
@@ -75,69 +64,18 @@ Note that the results of this may not agree with umoci-unpack(1) because the
 	},
 })
 
-func rawConfig(ctx *cli.Context) (Err error) {
-	imagePath := mustFetchMeta[string](ctx, "--image-path")
-	fromName := mustFetchMeta[string](ctx, "--image-tag")
-	configPath := mustFetchMeta[string](ctx, "config")
+func rawConfig(ctx *cli.Context) (Err error) { _ = "STUB: not implemented"; return nil }
 
-	var meta umoci.Meta
-	meta.Version = umoci.MetaVersion
+// Parse and set up the mapping options.
 
-	// Parse and set up the mapping options.
-	err := umoci.ParseIdmapOptions(&meta, ctx)
-	if err != nil {
-		return err
-	}
+// Get a reference to the CAS.
 
-	// Get a reference to the CAS.
-	engine, err := dir.Open(imagePath)
-	if err != nil {
-		return fmt.Errorf("open CAS: %w", err)
-	}
-	engineExt := casext.NewEngine(engine)
-	defer funchelpers.VerifyClose(&Err, engine)
+// TODO: Handle this more nicely.
 
-	fromDescriptorPaths, err := engineExt.ResolveReference(context.Background(), fromName)
-	if err != nil {
-		return fmt.Errorf("get descriptor: %w", err)
-	}
-	if len(fromDescriptorPaths) == 0 {
-		return fmt.Errorf("tag not found: %s", fromName)
-	}
-	if len(fromDescriptorPaths) != 1 {
-		// TODO: Handle this more nicely.
-		return fmt.Errorf("tag is ambiguous: %s", fromName)
-	}
-	meta.From = fromDescriptorPaths[0]
+// Get the manifest.
 
-	manifestBlob, err := engineExt.FromDescriptor(context.Background(), meta.From.Descriptor())
-	if err != nil {
-		return fmt.Errorf("get manifest: %w", err)
-	}
-	defer funchelpers.VerifyClose(&Err, manifestBlob)
+// Should _never_ be reached.
 
-	if manifestBlob.Descriptor.MediaType != ispec.MediaTypeImageManifest {
-		return fmt.Errorf("invalid --image tag: descriptor does not point to ispec.MediaTypeImageManifest: not implemented: %s", manifestBlob.Descriptor.MediaType)
-	}
+// Generate the configuration.
 
-	// Get the manifest.
-	manifest, ok := manifestBlob.Data.(ispec.Manifest)
-	if !ok {
-		// Should _never_ be reached.
-		return fmt.Errorf("[internal error] unknown manifest blob type: %s", manifestBlob.Descriptor.MediaType)
-	}
-
-	// Generate the configuration.
-	configFile, err := os.Create(configPath)
-	if err != nil {
-		return fmt.Errorf("opening config path: %w", err)
-	}
-	defer funchelpers.VerifyClose(&Err, configFile)
-
-	// Write out the generated config.
-	log.Info("generating config.json")
-	if err := layer.UnpackRuntimeJSON(context.Background(), engineExt, configFile, ctx.String("rootfs"), manifest, &meta.MapOptions); err != nil {
-		return fmt.Errorf("generate config: %w", err)
-	}
-	return nil
-}
+// Write out the generated config.

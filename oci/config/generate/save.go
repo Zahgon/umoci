@@ -20,8 +20,6 @@
 package generate
 
 import (
-	"encoding/json"
-	"fmt"
 	"io"
 )
 
@@ -32,25 +30,15 @@ type fakeBuffer struct {
 }
 
 // Write just counts the number of bytes requested to be written.
-func (fb *fakeBuffer) Write(p []byte) (int, error) {
-	size := len(p)
-	fb.n += int64(size)
-	return size, nil
-}
+func (fb *fakeBuffer) Write(p []byte) (int, error) { _ = "STUB: not implemented"; return 0, nil }
 
 // WriteTo outputs a JSON-marshalled version of the current state of the
 // generator. It is not guaranteed that the generator will produce the same
 // output given the same state, so it's recommended to only call this function
 // once. The JSON is not pretty-printed.
 func (g *Generator) WriteTo(w io.Writer) (n int64, err error) {
+	_ = "STUB: not implemented"
 	// We need to return the number of bytes written, which json.NewEncoder
 	// won't give us. So we have to cheat a little to get the answer.
-	var fb fakeBuffer
-	w = io.MultiWriter(w, &fb)
-
-	if err := json.NewEncoder(w).Encode(g.image); err != nil {
-		return fb.n, fmt.Errorf("encode image: %w", err)
-	}
-
-	return fb.n, nil
+	return 0, nil
 }

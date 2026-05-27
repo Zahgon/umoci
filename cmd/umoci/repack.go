@@ -20,23 +20,9 @@
 package main
 
 import (
-	"context"
 	"errors"
-	"fmt"
-	"time"
 
-	"github.com/apex/log"
-	ispec "github.com/opencontainers/image-spec/specs-go/v1"
 	"github.com/urfave/cli"
-
-	"github.com/opencontainers/umoci"
-	"github.com/opencontainers/umoci/internal/funchelpers"
-	"github.com/opencontainers/umoci/mutate"
-	"github.com/opencontainers/umoci/oci/cas/dir"
-	"github.com/opencontainers/umoci/oci/casext"
-	"github.com/opencontainers/umoci/oci/casext/blobcompress"
-	igen "github.com/opencontainers/umoci/oci/config/generate"
-	"github.com/opencontainers/umoci/pkg/mtreefilter"
 )
 
 var repackCommand = uxCompress(uxHistory(cli.Command{
@@ -95,105 +81,16 @@ manifest and configuration information uses the new diff atop the old manifest.`
 	},
 }))
 
-func repack(ctx *cli.Context) (Err error) {
-	imagePath := mustFetchMeta[string](ctx, "--image-path")
-	tagName := mustFetchMeta[string](ctx, "--image-tag")
-	bundlePath := mustFetchMeta[string](ctx, "bundle")
+func repack(ctx *cli.Context) (Err error) { _ = "STUB: not implemented"; return nil }
 
-	var compressAlgo blobcompress.Algorithm
-	if algo, ok := fetchMeta[blobcompress.Algorithm](ctx, "--compress"); ok {
-		compressAlgo = algo
-	}
+// Read the metadata first.
 
-	// Read the metadata first.
-	meta, err := umoci.ReadBundleMeta(bundlePath)
-	if err != nil {
-		return fmt.Errorf("read umoci.json metadata: %w", err)
-	}
+// Get a reference to the CAS.
 
-	log.WithFields(log.Fields{
-		"version":     meta.Version,
-		"from":        meta.From,
-		"map_options": meta.MapOptions,
-	}).Debugf("umoci: loaded Meta metadata")
+// Create the mutator.
 
-	if meta.From.Descriptor().MediaType != ispec.MediaTypeImageManifest {
-		return fmt.Errorf("invalid saved from descriptor: descriptor does not point to ispec.MediaTypeImageManifest: not implemented: %s", meta.From.Descriptor().MediaType)
-	}
+// We need to mask config.Volumes.
 
-	// Get a reference to the CAS.
-	engine, err := dir.Open(imagePath)
-	if err != nil {
-		return fmt.Errorf("open CAS: %w", err)
-	}
-	engineExt := casext.NewEngine(engine)
-	defer funchelpers.VerifyClose(&Err, engine)
+// XXX: Should we append argv to this?
 
-	// Create the mutator.
-	mutator, err := mutate.New(engineExt, meta.From)
-	if err != nil {
-		return fmt.Errorf("create mutator for base image: %w", err)
-	}
-
-	// We need to mask config.Volumes.
-	config, err := mutator.Config(context.Background())
-	if err != nil {
-		return fmt.Errorf("get config: %w", err)
-	}
-
-	maskedPaths := ctx.StringSlice("mask-path")
-	if !ctx.Bool("no-mask-volumes") {
-		for v := range config.Config.Volumes {
-			maskedPaths = append(maskedPaths, v)
-		}
-	}
-
-	imageMeta, err := mutator.Meta(context.Background())
-	if err != nil {
-		return fmt.Errorf("get image metadata: %w", err)
-	}
-
-	sourceDateEpoch, err := parseSourceDateEpoch()
-	if err != nil {
-		return err
-	}
-
-	var history *ispec.History
-	if !ctx.Bool("no-history") {
-		created := time.Now()
-		if sourceDateEpoch != nil {
-			created = *sourceDateEpoch
-		}
-		history = &ispec.History{
-			Author:     imageMeta.Author,
-			Comment:    "",
-			Created:    &created,
-			CreatedBy:  "umoci repack", // XXX: Should we append argv to this?
-			EmptyLayer: false,
-		}
-
-		if ctx.IsSet("history.author") {
-			history.Author = ctx.String("history.author")
-		}
-		if ctx.IsSet("history.comment") {
-			history.Comment = ctx.String("history.comment")
-		}
-		// If set, takes precedence over SOURCE_DATE_EPOCH.
-		if ctx.IsSet("history.created") {
-			created, err := time.Parse(igen.ISO8601, ctx.String("history.created"))
-			if err != nil {
-				return fmt.Errorf("parsing --history.created: %w", err)
-			}
-			history.Created = &created
-		}
-		if ctx.IsSet("history.created_by") {
-			history.CreatedBy = ctx.String("history.created_by")
-		}
-	}
-
-	filters := []mtreefilter.FilterFunc{
-		mtreefilter.MaskFilter(maskedPaths),
-	}
-
-	return umoci.Repack(engineExt, tagName, bundlePath, meta, history, filters, ctx.Bool("refresh-bundle"), mutator, compressAlgo, sourceDateEpoch)
-}
+// If set, takes precedence over SOURCE_DATE_EPOCH.

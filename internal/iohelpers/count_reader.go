@@ -31,20 +31,15 @@ type CountingReader struct {
 }
 
 // CountReader returns a new *CountingReader that wraps the given [io.Reader].
-func CountReader(rdr io.Reader) *CountingReader {
-	return &CountingReader{R: rdr, N: 0}
-}
+func CountReader(rdr io.Reader) *CountingReader { _ = "STUB: not implemented"; return nil }
 
-func (c *CountingReader) Read(p []byte) (int, error) {
-	n, err := c.R.Read(p)
-	c.N += int64(n)
-	return n, err
-}
+func (c *CountingReader) Read(p []byte) (int, error) { _ = "STUB: not implemented"; return 0, nil }
 
 // BytesRead returns the number of bytes read so far from the reader. This is
 // just shorthand for c.N.
 func (c CountingReader) BytesRead() int64 {
-	return c.N
-}
+	_ = "STUB: not implemented"
 
-// TODO: What about WriteTo?
+	// TODO: What about WriteTo?
+	return 0
+}

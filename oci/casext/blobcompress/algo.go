@@ -23,11 +23,8 @@
 package blobcompress
 
 import (
-	"fmt"
 	"io"
 	"sync"
-
-	"github.com/opencontainers/umoci/internal/assert"
 )
 
 // Default is the default algorithm used within umoci if unspecified by a user.
@@ -58,32 +55,13 @@ var (
 // that umoci can automatically handle when extracting images. Returns an error
 // if another [Algorithm] with the same MediaTypeSuffix has already been
 // registered.
-func RegisterAlgorithm(algo Algorithm) error {
-	name := algo.MediaTypeSuffix()
-
-	algorithmsLock.Lock()
-	defer algorithmsLock.Unlock()
-
-	if _, ok := algorithms[name]; ok {
-		return fmt.Errorf("blob blobcompression algorithm %s already registered", name)
-	}
-	algorithms[name] = algo
-	return nil
-}
+func RegisterAlgorithm(algo Algorithm) error { _ = "STUB: not implemented"; return nil }
 
 // MustRegisterAlgorithm is like [RegisterAlgorithm] but it panics if
 // [RegisterAlgorithm] returns an error. Intended for use in init functions.
-func MustRegisterAlgorithm(algo Algorithm) {
-	err := RegisterAlgorithm(algo)
-	assert.NoError(err)
-}
+func MustRegisterAlgorithm(algo Algorithm) { _ = "STUB: not implemented"; return }
 
 // GetAlgorithm looks for a registered [Algorithm] with the given
 // MediaTypeSuffix (which doubles as its name). Return nil if no such algorithm
 // has been registered.
-func GetAlgorithm(name string) Algorithm {
-	algorithmsLock.RLock()
-	defer algorithmsLock.RUnlock()
-
-	return algorithms[name]
-}
+func GetAlgorithm(name string) Algorithm { _ = "STUB: not implemented"; return *new(Algorithm) }

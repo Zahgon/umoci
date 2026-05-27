@@ -21,22 +21,9 @@
 package main
 
 import (
-	"context"
 	"fmt"
-	"time"
 
-	"github.com/apex/log"
-	ispec "github.com/opencontainers/image-spec/specs-go/v1"
 	"github.com/urfave/cli"
-
-	"github.com/opencontainers/umoci"
-	"github.com/opencontainers/umoci/internal/funchelpers"
-	"github.com/opencontainers/umoci/mutate"
-	"github.com/opencontainers/umoci/oci/cas/dir"
-	"github.com/opencontainers/umoci/oci/casext"
-	"github.com/opencontainers/umoci/oci/casext/blobcompress"
-	igen "github.com/opencontainers/umoci/oci/config/generate"
-	"github.com/opencontainers/umoci/oci/layer"
 )
 
 var insertCommand = uxCompress(uxRemap(uxHistory(uxTag(cli.Command{
@@ -114,118 +101,18 @@ Some examples:
 	},
 }))))
 
-func insert(ctx *cli.Context) (Err error) {
-	imagePath := mustFetchMeta[string](ctx, "--image-path")
-	fromName := mustFetchMeta[string](ctx, "--image-tag")
-	sourcePath := mustFetchMeta[string](ctx, "--source-path")
-	targetPath := mustFetchMeta[string](ctx, "--target-path")
+func insert(ctx *cli.Context) (Err error) { _ = "STUB: not implemented"; return nil }
 
-	var compressAlgo blobcompress.Algorithm
-	if algo, ok := fetchMeta[blobcompress.Algorithm](ctx, "--compress"); ok {
-		compressAlgo = algo
-	}
+// By default we clobber the old tag.
 
-	// By default we clobber the old tag.
-	tagName := fromName
-	if val, ok := fetchMeta[string](ctx, "--tag"); ok {
-		tagName = val
-	}
+// Get a reference to the CAS.
 
-	// Get a reference to the CAS.
-	engine, err := dir.Open(imagePath)
-	if err != nil {
-		return fmt.Errorf("open CAS: %w", err)
-	}
-	engineExt := casext.NewEngine(engine)
-	defer funchelpers.VerifyClose(&Err, engine)
+// TODO: Handle this more nicely.
 
-	descriptorPaths, err := engineExt.ResolveReference(context.Background(), fromName)
-	if err != nil {
-		return fmt.Errorf("get descriptor: %w", err)
-	}
-	if len(descriptorPaths) == 0 {
-		return fmt.Errorf("tag not found: %s", fromName)
-	}
-	if len(descriptorPaths) != 1 {
-		// TODO: Handle this more nicely.
-		return fmt.Errorf("tag is ambiguous: %s", fromName)
-	}
+// Create the mutator.
 
-	// Create the mutator.
-	mutator, err := mutate.New(engine, descriptorPaths[0])
-	if err != nil {
-		return fmt.Errorf("create mutator for base image: %w", err)
-	}
+// Parse and set up the mapping options.
 
-	var meta umoci.Meta
-	meta.Version = umoci.MetaVersion
+// XXX: Should we append argv to this?
 
-	// Parse and set up the mapping options.
-	err = umoci.ParseIdmapOptions(&meta, ctx)
-	if err != nil {
-		return err
-	}
-
-	sourceDateEpoch, err := parseSourceDateEpoch()
-	if err != nil {
-		return err
-	}
-
-	packOptions := layer.RepackOptions{
-		OnDiskFormat: layer.DirRootfs{
-			MapOptions: meta.MapOptions,
-		},
-		SourceDateEpoch: sourceDateEpoch,
-	}
-	reader := layer.GenerateInsertLayer(sourcePath, targetPath, ctx.IsSet("opaque"), &packOptions)
-	defer funchelpers.VerifyClose(&Err, reader)
-
-	var history *ispec.History
-	if !ctx.Bool("no-history") {
-		created := time.Now()
-		if sourceDateEpoch != nil {
-			created = *sourceDateEpoch
-		}
-		history = &ispec.History{
-			Comment:    "",
-			Created:    &created,
-			CreatedBy:  "umoci insert", // XXX: Should we append argv to this?
-			EmptyLayer: false,
-		}
-
-		if ctx.IsSet("history.author") {
-			history.Author = ctx.String("history.author")
-		}
-		if ctx.IsSet("history.comment") {
-			history.Comment = ctx.String("history.comment")
-		}
-		// If set, takes precedence over SOURCE_DATE_EPOCH.
-		if ctx.IsSet("history.created") {
-			created, err := time.Parse(igen.ISO8601, ctx.String("history.created"))
-			if err != nil {
-				return fmt.Errorf("parsing --history.created: %w", err)
-			}
-			history.Created = &created
-		}
-		if ctx.IsSet("history.created_by") {
-			history.CreatedBy = ctx.String("history.created_by")
-		}
-	}
-
-	if _, err := mutator.Add(context.Background(), ispec.MediaTypeImageLayer, reader, history, compressAlgo, nil); err != nil {
-		return fmt.Errorf("add diff layer: %w", err)
-	}
-
-	newDescriptorPath, err := mutator.Commit(context.Background())
-	if err != nil {
-		return fmt.Errorf("commit mutated image: %w", err)
-	}
-
-	log.Infof("new image manifest created: %s->%s", newDescriptorPath.Root().Digest, newDescriptorPath.Descriptor().Digest)
-
-	if err := engineExt.UpdateReference(context.Background(), tagName, newDescriptorPath.Root()); err != nil {
-		return fmt.Errorf("add new tag: %w", err)
-	}
-	log.Infof("updated tag for image manifest: %s", tagName)
-	return nil
-}
+// If set, takes precedence over SOURCE_DATE_EPOCH.

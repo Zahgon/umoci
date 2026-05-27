@@ -20,19 +20,9 @@
 package main
 
 import (
-	"context"
 	"errors"
-	"fmt"
 
-	"github.com/apex/log"
-	ispec "github.com/opencontainers/image-spec/specs-go/v1"
 	"github.com/urfave/cli"
-
-	"github.com/opencontainers/umoci"
-	"github.com/opencontainers/umoci/internal/funchelpers"
-	"github.com/opencontainers/umoci/oci/cas/dir"
-	"github.com/opencontainers/umoci/oci/casext"
-	"github.com/opencontainers/umoci/oci/layer"
 )
 
 var rawUnpackCommand = uxRemap(cli.Command{
@@ -68,78 +58,15 @@ is the destination to unpack the image to.`,
 	},
 })
 
-func rawUnpack(ctx *cli.Context) (Err error) {
-	imagePath := mustFetchMeta[string](ctx, "--image-path")
-	fromName := mustFetchMeta[string](ctx, "--image-tag")
-	rootfsPath := mustFetchMeta[string](ctx, "rootfs")
+func rawUnpack(ctx *cli.Context) (Err error) { _ = "STUB: not implemented"; return nil }
 
-	var meta umoci.Meta
-	meta.Version = umoci.MetaVersion
+// Parse map options.
+// We need to set mappings if we're in rootless mode.
 
-	// Parse map options.
-	// We need to set mappings if we're in rootless mode.
-	err := umoci.ParseIdmapOptions(&meta, ctx)
-	if err != nil {
-		return err
-	}
+// Get a reference to the CAS.
 
-	unpackOptions := layer.UnpackOptions{
-		OnDiskFormat: layer.DirRootfs{
-			MapOptions: meta.MapOptions,
-		},
-		KeepDirlinks: ctx.Bool("keep-dirlinks"),
-	}
+// TODO: Handle this more nicely.
 
-	// Get a reference to the CAS.
-	engine, err := dir.Open(imagePath)
-	if err != nil {
-		return fmt.Errorf("open CAS: %w", err)
-	}
-	engineExt := casext.NewEngine(engine)
-	defer funchelpers.VerifyClose(&Err, engine)
+// Get the manifest.
 
-	fromDescriptorPaths, err := engineExt.ResolveReference(context.Background(), fromName)
-	if err != nil {
-		return fmt.Errorf("get descriptor: %w", err)
-	}
-	if len(fromDescriptorPaths) == 0 {
-		return fmt.Errorf("tag is not found: %s", fromName)
-	}
-	if len(fromDescriptorPaths) != 1 {
-		// TODO: Handle this more nicely.
-		return fmt.Errorf("tag is ambiguous: %s", fromName)
-	}
-	meta.From = fromDescriptorPaths[0]
-
-	manifestBlob, err := engineExt.FromDescriptor(context.Background(), meta.From.Descriptor())
-	if err != nil {
-		return fmt.Errorf("get manifest: %w", err)
-	}
-	defer funchelpers.VerifyClose(&Err, manifestBlob)
-
-	if manifestBlob.Descriptor.MediaType != ispec.MediaTypeImageManifest {
-		return fmt.Errorf("invalid --image tag: descriptor does not point to ispec.MediaTypeImageManifest: not implemented: %s", manifestBlob.Descriptor.MediaType)
-	}
-
-	log.WithFields(log.Fields{
-		"image":  imagePath,
-		"rootfs": rootfsPath,
-		"ref":    fromName,
-	}).Debugf("umoci: unpacking OCI image")
-
-	// Get the manifest.
-	manifest, ok := manifestBlob.Data.(ispec.Manifest)
-	if !ok {
-		// Should _never_ be reached.
-		return fmt.Errorf("[internal error] unknown manifest blob type: %s", manifestBlob.Descriptor.MediaType)
-	}
-
-	log.Warnf("unpacking rootfs ...")
-	if err := layer.UnpackRootfs(context.Background(), engineExt, rootfsPath, manifest, &unpackOptions); err != nil {
-		return fmt.Errorf("create rootfs: %w", err)
-	}
-	log.Warnf("... done")
-
-	log.Warnf("unpacked image rootfs: %s", rootfsPath)
-	return nil
-}
+// Should _never_ be reached.

@@ -21,14 +21,10 @@ package hardening
 
 import (
 	"errors"
-	"fmt"
 	"io"
-	"os"
 
 	"github.com/apex/log"
 	"github.com/opencontainers/go-digest"
-
-	"github.com/opencontainers/umoci/internal/system"
 )
 
 // Exported errors for verification issues that occur during processing within
@@ -82,134 +78,80 @@ func (v *VerifiedReadCloser) init() {
 	}
 }
 
-func (v *VerifiedReadCloser) isNoop() bool {
-	innerV, ok := v.Reader.(*VerifiedReadCloser)
-	return ok &&
-		innerV.ExpectedDigest == v.ExpectedDigest &&
-		innerV.ExpectedSize == v.ExpectedSize
-}
+func (v *VerifiedReadCloser) isNoop() bool { _ = "STUB: not implemented"; return false }
 
-func (v *VerifiedReadCloser) check() error {
-	if v.ExpectedSize < 0 {
-		return fmt.Errorf("%w: expected size must be non-negative", ErrInvalidExpectedSize)
-	}
+func (v *VerifiedReadCloser) check() error { _ = "STUB: not implemented"; return nil }
+
+func (v *VerifiedReadCloser) verify(nilErr error) error {
+	_ = "STUB: not implemented"
+	// Digest mismatch (always takes precedence)?
 	return nil
 }
 
-func (v *VerifiedReadCloser) verify(nilErr error) error {
-	// Digest mismatch (always takes precedence)?
-	if actualDigest := v.digester.Digest(); actualDigest != v.ExpectedDigest {
-		return fmt.Errorf("expected %s not %s: %w", v.ExpectedDigest, actualDigest, ErrDigestMismatch)
-	}
-	switch {
-	// Not enough bytes in the stream.
-	case v.currentSize < v.ExpectedSize:
-		return fmt.Errorf("expected %d bytes (only %d bytes in stream): %w", v.ExpectedSize, v.currentSize, ErrSizeMismatch)
-	// We don't read the entire blob, so the message needs to be slightly adjusted.
-	case v.currentSize > v.ExpectedSize:
-		return fmt.Errorf("expected %d bytes (extra bytes in stream): %w", v.ExpectedSize, ErrSizeMismatch)
-	}
-	// Forward the provided error.
-	return nilErr
-}
+// Not enough bytes in the stream.
+
+// We don't read the entire blob, so the message needs to be slightly adjusted.
+
+// Forward the provided error.
 
 // Read is a wrapper around VerifiedReadCloser.Reader, with a digest check on
 // EOF.  Make sure that you always check for EOF and read-to-the-end for all
 // files.
 func (v *VerifiedReadCloser) Read(p []byte) (n int, err error) {
-	if err := v.check(); err != nil {
-		return 0, err
-	}
-	// Make sure we don't read after v.ExpectedSize has been passed.
-	err = io.EOF
-	left := v.ExpectedSize - v.currentSize
-	switch {
-	// We still have something left to read.
-	case left > 0:
-		if int64(len(p)) > left {
-			p = p[:left]
-		}
-		// Piped to the underling read.
-		n, err = v.Reader.Read(p)
-		v.currentSize += int64(n)
-
-	// We have either read everything, or just happened to land on a boundary
-	// (with potentially more things afterwards). So we must check if there is
-	// anything left by doing a 1-byte read (Go doesn't allow for zero-length
-	// Read()s to give EOFs).
-	case left == 0:
-		// We just want to know whether we read something (n>0). Whatever we
-		// read is irrelevant because if we read something that means the
-		// reader will fail to verify.
-		nTmp, _ := v.Reader.Read(make([]byte, 1))
-		v.currentSize += int64(nTmp)
-	}
-	// Are we going to be a noop?
-	if v.isNoop() {
-		return n, err
-	}
-	// Make sure we're ready.
-	v.init()
-	// Forward it to the digester.
-	if n > 0 {
-		// hash.Hash guarantees Write() never fails and is never short.
-		nWrite, err := v.digester.Hash().Write(p[:n])
-		if nWrite != n || err != nil {
-			log.Fatalf("verified reader: short write to %s Digester (err=%v)", v.ExpectedDigest.Algorithm(), err) //nolint:revive // panic is for extra safety
-			panic("verified reader: unreachable section")                                                         // should never be hit
-		}
-	}
-	// We have finished reading -- let's verify the state!
-	if errors.Is(err, io.EOF) {
-		err = v.verify(err)
-	}
-	return n, err
+	_ = "STUB: not implemented"
+	return 0, nil
 }
+
+// Make sure we don't read after v.ExpectedSize has been passed.
+
+// We still have something left to read.
+
+// Piped to the underling read.
+
+// We have either read everything, or just happened to land on a boundary
+// (with potentially more things afterwards). So we must check if there is
+// anything left by doing a 1-byte read (Go doesn't allow for zero-length
+// Read()s to give EOFs).
+
+// We just want to know whether we read something (n>0). Whatever we
+// read is irrelevant because if we read something that means the
+// reader will fail to verify.
+
+// Are we going to be a noop?
+
+// Make sure we're ready.
+
+// Forward it to the digester.
+
+// hash.Hash guarantees Write() never fails and is never short.
+
+//nolint:revive // panic is for extra safety
+// should never be hit
+
+// We have finished reading -- let's verify the state!
 
 // sourceName returns a debugging-friendly string to indicate to the user what
 // the source reader is for this verified reader.
-func (v *VerifiedReadCloser) sourceName() string {
-	switch inner := v.Reader.(type) {
-	case *VerifiedReadCloser:
-		return fmt.Sprintf("vrdr[%s]", inner.sourceName())
-	case *os.File:
-		return inner.Name()
-	case fmt.Stringer:
-		return inner.String()
-	// TODO: Maybe handle things like io.NopCloser by using reflection?
-	default:
-		return fmt.Sprintf("%#v", inner)
-	}
-}
+func (v *VerifiedReadCloser) sourceName() string { _ = "STUB: not implemented"; return "" }
+
+// TODO: Maybe handle things like io.NopCloser by using reflection?
 
 // Close is a wrapper around VerifiedReadCloser.Reader, but with a digest check
 // which will return an error if the underlying Close() didn't.
-func (v *VerifiedReadCloser) Close() error {
-	if err := v.check(); err != nil {
-		return err
-	}
-	// Consume any remaining bytes to make sure that we've actually read to the
-	// end of the stream. VerifiedReadCloser.Read will not read past
-	// ExpectedSize+1, so we don't need to add a limit here.
-	if n, err := system.Copy(io.Discard, v); err != nil {
-		return fmt.Errorf("consume remaining unverified stream: %w", err)
-	} else if n != 0 {
-		// If there's trailing bytes being discarded at this point, that
-		// indicates whatever you used to generate this blob is adding trailing
-		// gunk.
-		log.Infof("verified reader: %d bytes of trailing data discarded from %s", n, v.sourceName())
-	}
-	// Piped to underlying close.
-	err := v.Reader.Close()
-	if err != nil {
-		return err
-	}
-	// Are we going to be a noop?
-	if v.isNoop() {
-		return err
-	}
-	// Make sure we're ready.
-	v.init()
-	// Verify the state.
-	return v.verify(nil)
-}
+func (v *VerifiedReadCloser) Close() error { _ = "STUB: not implemented"; return nil }
+
+// Consume any remaining bytes to make sure that we've actually read to the
+// end of the stream. VerifiedReadCloser.Read will not read past
+// ExpectedSize+1, so we don't need to add a limit here.
+
+// If there's trailing bytes being discarded at this point, that
+// indicates whatever you used to generate this blob is adding trailing
+// gunk.
+
+// Piped to underlying close.
+
+// Are we going to be a noop?
+
+// Make sure we're ready.
+
+// Verify the state.

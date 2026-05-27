@@ -21,49 +21,11 @@
 
 package casext
 
-import (
-	"context"
-	"io"
-	"os"
-	"path/filepath"
-
-	"github.com/opencontainers/umoci/oci/cas/dir"
-)
-
 // Fuzz fuzzes the implementation of dirEngine.{PutBlobJSON,GetBlob}.
-func Fuzz(data []byte) int {
-	ctx := context.Background()
-	root, err := os.MkdirTemp("", "umoci-TestEngineBlobJSON")
-	if err != nil {
-		return -1
-	}
-	defer os.RemoveAll(root) //nolint:errcheck
+func Fuzz(data []byte) int { _ = "STUB: not implemented"; return 0 }
 
-	image := filepath.Join(root, "image")
-	if err := dir.Create(image); err != nil {
-		return -1
-	}
+//nolint:errcheck
 
-	engine, err := dir.Open(image)
-	if err != nil {
-		return -1
-	}
-	engineExt := NewEngine(engine)
-	defer engine.Close() //nolint:errcheck
+//nolint:errcheck
 
-	digest, _, err := engineExt.PutBlobJSON(ctx, string(data))
-	if err != nil {
-		return 0
-	}
-	blobReader, err := engine.GetBlob(ctx, digest)
-	if err != nil {
-		return 0
-	}
-	defer blobReader.Close() //nolint:errcheck
-
-	_, err = io.ReadAll(blobReader)
-	if err != nil {
-		return 0
-	}
-	return 1
-}
+//nolint:errcheck

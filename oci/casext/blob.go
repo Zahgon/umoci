@@ -20,17 +20,9 @@
 package casext
 
 import (
-	"bytes"
 	"context"
-	"errors"
-	"fmt"
-	"io"
 
 	ispec "github.com/opencontainers/image-spec/specs-go/v1"
-
-	"github.com/opencontainers/umoci/internal/assert"
-	"github.com/opencontainers/umoci/internal/system"
-	"github.com/opencontainers/umoci/oci/casext/mediatype"
 )
 
 // Blob represents a "parsed" blob in an OCI image's blob store. MediaType
@@ -62,56 +54,18 @@ type Blob struct {
 }
 
 // Close cleans up all of the resources for the opened blob.
-func (b *Blob) Close() error {
-	if closer, ok := b.Data.(io.Closer); ok {
-		return closer.Close()
-	}
-	return nil
-}
+func (b *Blob) Close() error { _ = "STUB: not implemented"; return nil }
 
 // FromDescriptor parses the blob referenced by the given descriptor.
 func (e Engine) FromDescriptor(ctx context.Context, descriptor ispec.Descriptor) (blob *Blob, Err error) {
-	reader, err := e.GetVerifiedBlob(ctx, descriptor)
-	if err != nil {
-		return nil, fmt.Errorf("get blob: %w", err)
-	}
-
-	blob = &Blob{
-		Descriptor: descriptor,
-		Data:       reader,
-		RawData:    descriptor.Data, // copy if present
-	}
-
-	if fn := mediatype.GetParser(descriptor.MediaType); fn != nil {
-		// TODO: Should we short-cut this for descriptors with embedded data?
-		rawDataBuf := new(bytes.Buffer)
-		dataReader := io.TeeReader(reader, rawDataBuf)
-
-		defer func() {
-			if _, err := system.Copy(io.Discard, dataReader); Err == nil && err != nil {
-				Err = fmt.Errorf("discard trailing %q blob: %w", descriptor.MediaType, err)
-			}
-			if err := reader.Close(); Err == nil && err != nil {
-				Err = fmt.Errorf("close %q blob: %w", descriptor.MediaType, err)
-			}
-			if blob != nil {
-				// Include all trailing data.
-				blob.RawData = rawDataBuf.Bytes()
-				// Sanity check.
-				assert.Assertf(int64(len(blob.RawData)) == descriptor.Size,
-					"parsing %q blob succeeded but raw data has unexpected length (expected %d bytes but got %d bytes)",
-					descriptor.MediaType, descriptor.Size, len(blob.RawData))
-			}
-		}()
-
-		data, err := fn(dataReader)
-		if err != nil {
-			return nil, fmt.Errorf("parse %s: %w", descriptor.MediaType, err)
-		}
-		blob.Data = data
-	}
-	if blob.Data == nil {
-		return nil, errors.New("[internal error] b.Data was nil after parsing")
-	}
-	return blob, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
+
+// copy if present
+
+// TODO: Should we short-cut this for descriptors with embedded data?
+
+// Include all trailing data.
+
+// Sanity check.

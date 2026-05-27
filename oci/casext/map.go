@@ -20,13 +20,9 @@
 package casext
 
 import (
-	"fmt"
 	"reflect"
 
-	"github.com/apex/log"
 	ispec "github.com/opencontainers/image-spec/specs-go/v1"
-
-	"github.com/opencontainers/umoci/oci/casext/mediatype"
 )
 
 // Used by walkState.mark() to determine which struct members are descriptors to
@@ -41,85 +37,41 @@ var descriptorType = reflect.TypeFor[ispec.Descriptor]()
 type DescriptorMapFunc func(ispec.Descriptor) ispec.Descriptor
 
 // isDescriptor returns whether the given T is a ispec.Descriptor.
-func isDescriptor(T reflect.Type) bool {
-	return T == descriptorType
-}
+func isDescriptor(T reflect.Type) bool { _ = "STUB: not implemented"; return false }
 
 func mapDescriptors(V reflect.Value, mapFunc DescriptorMapFunc) error {
+	_ = "STUB: not implemented"
 	// We can ignore this value.
-	if !V.IsValid() {
-		return nil
-	}
-
-	// First check that V isn't actually a ispec.Descriptor, if it is then
-	// we're done.
-	if isDescriptor(V.Type()) {
-		oldDesc := V.Interface().(ispec.Descriptor) //nolint:forcetypeassert // already checked with reflection in isDescriptor
-		newDesc := mapFunc(oldDesc)
-
-		// We only need to do any assignment if the two are not equal.
-		if !reflect.DeepEqual(newDesc, oldDesc) {
-			// P is a ptr to V (or just V if it's already a pointer).
-			P := V
-			if !P.CanSet() {
-				// This is a programmer error.
-				return fmt.Errorf("[internal error] cannot apply map function to %v: %v is not settable", P, P.Type())
-			}
-			P.Set(reflect.ValueOf(newDesc))
-		}
-		return nil
-	}
-
-	// Recurse into all the types.
-	switch V.Kind() { //nolint:exhaustive // no need to handle other types explicitly
-	case reflect.Ptr, reflect.Interface:
-		// Just deref the pointer/interface.
-		if V.IsNil() {
-			return nil
-		}
-		if err := mapDescriptors(V.Elem(), mapFunc); err != nil {
-			return fmt.Errorf("%v: %w", V.Type(), err)
-		}
-		return nil
-
-	case reflect.Slice, reflect.Array:
-		// Iterate over each element.
-		for idx := 0; idx < V.Len(); idx++ {
-			err := mapDescriptors(V.Index(idx), mapFunc)
-			if err != nil {
-				return fmt.Errorf("%v[%d]->%v: %w", V.Type(), idx, V.Index(idx).Type(), err)
-			}
-		}
-		return nil
-
-	case reflect.Struct:
-		// We are only ever going to be interested in registered types.
-		if !mediatype.IsRegisteredPackage(V.Type().PkgPath()) {
-			log.WithFields(log.Fields{
-				"name":   V.Type().PkgPath() + "::" + V.Type().Name(),
-				"v1path": descriptorType.PkgPath(),
-			}).Debugf("detected jump outside permitted packages")
-			return nil
-		}
-
-		// We can now actually iterate through a struct to find all descriptors.
-		for idx := 0; idx < V.NumField(); idx++ {
-			err := mapDescriptors(V.Field(idx), mapFunc)
-			if err != nil {
-				return fmt.Errorf("%v[%d=%s]->%v: %w", V.Type(), idx, V.Type().Field(idx).Name, V.Field(idx).Type(), err)
-			}
-		}
-		return nil
-
-	default:
-		// FIXME: Should we log something here? While this will be hit normally
-		//        (namely when we hit an io.ReadCloser) this seems a bit
-		//        careless.
-		return nil
-	}
-
-	// Unreachable.
+	return nil
 }
+
+// First check that V isn't actually a ispec.Descriptor, if it is then
+// we're done.
+
+//nolint:forcetypeassert // already checked with reflection in isDescriptor
+
+// We only need to do any assignment if the two are not equal.
+
+// P is a ptr to V (or just V if it's already a pointer).
+
+// This is a programmer error.
+
+// Recurse into all the types.
+//nolint:exhaustive // no need to handle other types explicitly
+
+// Just deref the pointer/interface.
+
+// Iterate over each element.
+
+// We are only ever going to be interested in registered types.
+
+// We can now actually iterate through a struct to find all descriptors.
+
+// FIXME: Should we log something here? While this will be hit normally
+//        (namely when we hit an io.ReadCloser) this seems a bit
+//        careless.
+
+// Unreachable.
 
 // MapDescriptors applies the given function once for every instance of
 // ispec.Descriptor found in the given type, and replaces it with the returned
@@ -127,6 +79,4 @@ func mapDescriptors(V reflect.Value, mapFunc DescriptorMapFunc) error {
 // Go, which means that hidden attributes may be inaccessible.
 // DescriptorMapFunc will only be executed once for every ispec.Descriptor
 // found.
-func MapDescriptors(i any, mapFunc DescriptorMapFunc) error {
-	return mapDescriptors(reflect.ValueOf(i), mapFunc)
-}
+func MapDescriptors(i any, mapFunc DescriptorMapFunc) error { _ = "STUB: not implemented"; return nil }

@@ -28,16 +28,16 @@ var Noop Algorithm = noopAlgo{}
 
 type noopAlgo struct{}
 
-func (n noopAlgo) MediaTypeSuffix() string {
-	return ""
-}
+func (n noopAlgo) MediaTypeSuffix() string { _ = "STUB: not implemented"; return "" }
 
 func (n noopAlgo) Compress(reader io.Reader) (io.ReadCloser, error) {
-	return io.NopCloser(reader), nil
+	_ = "STUB: not implemented"
+	return *new(io.ReadCloser), nil
 }
 
 func (n noopAlgo) Decompress(reader io.Reader) (io.ReadCloser, error) {
-	return io.NopCloser(reader), nil
+	_ = "STUB: not implemented"
+	return *new(io.ReadCloser), nil
 }
 
 func init() {

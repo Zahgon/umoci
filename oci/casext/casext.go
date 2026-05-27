@@ -35,6 +35,4 @@ type Engine struct {
 // NewEngine returns a new Engine which acts as a wrapper around the given
 // cas.Engine and provides additional, generic extensions to the
 // transport-dependent cas.Engine implementation.
-func NewEngine(engine cas.Engine) Engine {
-	return Engine{Engine: engine}
-}
+func NewEngine(engine cas.Engine) Engine { _ = "STUB: not implemented"; return *new(Engine) }

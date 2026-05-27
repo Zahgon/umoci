@@ -21,13 +21,8 @@ package main
 
 import (
 	"errors"
-	"fmt"
-	"os"
 
-	"github.com/apex/log"
 	"github.com/urfave/cli"
-
-	"github.com/opencontainers/umoci/oci/cas/dir"
 )
 
 var initCommand = cli.Command{
@@ -54,20 +49,4 @@ commands.`,
 	Action: initLayout,
 }
 
-func initLayout(ctx *cli.Context) error {
-	imagePath := mustFetchMeta[string](ctx, "--image-path")
-
-	if _, err := os.Stat(imagePath); !errors.Is(err, os.ErrNotExist) {
-		if err == nil {
-			err = fmt.Errorf("path already exists: %s", imagePath)
-		}
-		return fmt.Errorf("image layout creation: %w", err)
-	}
-
-	if err := dir.Create(imagePath); err != nil {
-		return fmt.Errorf("image layout creation: %w", err)
-	}
-
-	log.Infof("created new OCI image: %s", imagePath)
-	return nil
-}
+func initLayout(ctx *cli.Context) error { _ = "STUB: not implemented"; return nil }

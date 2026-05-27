@@ -20,10 +20,7 @@
 package casext
 
 import (
-	"bytes"
 	"context"
-	"encoding/json"
-	"fmt"
 
 	"github.com/opencontainers/go-digest"
 )
@@ -40,9 +37,6 @@ import (
 //	map[...]... objects (which have their iteration order randomised in
 //	Go).
 func (e Engine) PutBlobJSON(ctx context.Context, data any) (digest.Digest, int64, error) {
-	var buffer bytes.Buffer
-	if err := json.NewEncoder(&buffer).Encode(data); err != nil {
-		return "", -1, fmt.Errorf("encode JSON: %w", err)
-	}
-	return e.PutBlob(ctx, &buffer)
+	_ = "STUB: not implemented"
+	return *new(digest.Digest), 0, nil
 }

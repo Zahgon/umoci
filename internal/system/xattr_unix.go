@@ -19,85 +19,46 @@
 
 package system
 
-import (
-	"bytes"
-	"errors"
-	"fmt"
-	"os"
-
-	"golang.org/x/sys/unix"
-)
-
 // Llistxattr is a wrapper around unix.Llistattr, to abstract the NUL-splitting
 // and resizing of the returned []string.
 func Llistxattr(path string) ([]string, error) {
-	var buffer []byte //nolint:prealloc // we do pre-allocate later
-	for {
-		// Find the size.
-		sz, err := unix.Llistxattr(path, nil)
-		if err != nil {
-			// Could not get the size.
-			return nil, err
-		}
-		buffer = make([]byte, sz)
-
-		// Get the buffer.
-		_, err = unix.Llistxattr(path, buffer)
-		if err != nil {
-			// If we got an ERANGE then we have to resize the buffer because
-			// someone raced with us getting the list. Don't you just love C
-			// interfaces.
-			if err == unix.ERANGE {
-				continue
-			}
-			return nil, err
-		}
-
-		break
-	}
-
-	// Split the buffer.
-	xattrs := make([]string, 0, bytes.Count(buffer, []byte{'\x00'}))
-	for name := range bytes.SplitSeq(buffer, []byte{'\x00'}) {
-		// "" is not a valid xattr (weirdly you get ERANGE -- not EINVAL -- if
-		// you try to touch it). So just skip it.
-		if len(name) == 0 {
-			continue
-		}
-		xattrs = append(xattrs, string(name))
-	}
-	return xattrs, nil
+	_ = "STUB: not implemented"
+	//nolint:prealloc // we do pre-allocate later
+	return nil, nil
 }
+
+// Find the size.
+
+// Could not get the size.
+
+// Get the buffer.
+
+// If we got an ERANGE then we have to resize the buffer because
+// someone raced with us getting the list. Don't you just love C
+// interfaces.
+
+// Split the buffer.
+
+// "" is not a valid xattr (weirdly you get ERANGE -- not EINVAL -- if
+// you try to touch it). So just skip it.
 
 // Lgetxattr is a wrapper around unix.Lgetattr, to abstract the resizing of the
 // returned []string.
 func Lgetxattr(path, name string) ([]byte, error) {
-	var buffer []byte //nolint:prealloc // we do pre-allocate later
-	for {
-		// Find the size.
-		sz, err := unix.Lgetxattr(path, name, nil)
-		if err != nil {
-			// Could not get the size.
-			return nil, err
-		}
-		buffer = make([]byte, sz)
-
-		// Get the buffer.
-		_, err = unix.Lgetxattr(path, name, buffer)
-		if err != nil {
-			// If we got an ERANGE then we have to resize the buffer because
-			// someone raced with us getting the list. Don't you just love C
-			// interfaces.
-			if err == unix.ERANGE {
-				continue
-			}
-			return nil, err
-		}
-
-		break
-	}
-	return buffer, nil
+	_ = "STUB: not implemented"
+	//nolint:prealloc // we do pre-allocate later
+	return nil, nil
 }
+
+// Find the size.
+
+// Could not get the size.
+
+// Get the buffer.
+
+// If we got an ERANGE then we have to resize the buffer because
+// someone raced with us getting the list. Don't you just love C
+// interfaces.
 
 // Lclearxattrs is a wrapper around Llistxattr and Lremovexattr, which attempts
 // to remove all xattrs from a given file.
@@ -105,22 +66,9 @@ func Lgetxattr(path, name string) ([]byte, error) {
 // If skipFn is non-nil and returns true when passed an xattr we planned to
 // remove, that xattr is skipped and remains set on the path.
 func Lclearxattrs(path string, skipFn func(xattrName string) bool) error {
-	names, err := Llistxattr(path)
-	if err != nil {
-		return fmt.Errorf("lclearxattrs: get list: %w", err)
-	}
-	for _, name := range names {
-		if skipFn != nil && skipFn(name) {
-			continue
-		}
-		if err := unix.Lremovexattr(path, name); err != nil {
-			// Ignore permission errors, because hitting a permission error
-			// means that it's a security.* xattr label or something similar.
-			if errors.Is(err, os.ErrPermission) {
-				continue
-			}
-			return fmt.Errorf("lclearxattrs: remove xattr %q: %w", name, err)
-		}
-	}
+	_ = "STUB: not implemented"
 	return nil
 }
+
+// Ignore permission errors, because hitting a permission error
+// means that it's a security.* xattr label or something similar.

@@ -20,15 +20,9 @@
 package main
 
 import (
-	"context"
 	"errors"
-	"fmt"
 
 	"github.com/urfave/cli"
-
-	"github.com/opencontainers/umoci/internal/funchelpers"
-	"github.com/opencontainers/umoci/oci/cas/dir"
-	"github.com/opencontainers/umoci/oci/casext"
 )
 
 var gcCommand = cli.Command{
@@ -58,20 +52,8 @@ root set of references. All other blobs will be removed.`,
 	Action: gc,
 }
 
-func gc(ctx *cli.Context) (Err error) {
-	imagePath := mustFetchMeta[string](ctx, "--image-path")
+func gc(ctx *cli.Context) (Err error) { _ = "STUB: not implemented"; return nil }
 
-	// Get a reference to the CAS.
-	engine, err := dir.Open(imagePath)
-	if err != nil {
-		return fmt.Errorf("open CAS: %w", err)
-	}
-	engineExt := casext.NewEngine(engine)
-	defer funchelpers.VerifyClose(&Err, engine)
+// Get a reference to the CAS.
 
-	// Run the GC.
-	if err := engineExt.GC(context.Background()); err != nil {
-		return fmt.Errorf("gc: %w", err)
-	}
-	return nil
-}
+// Run the GC.

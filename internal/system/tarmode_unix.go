@@ -19,27 +19,7 @@
 
 package system
 
-import (
-	"archive/tar"
-
-	"golang.org/x/sys/unix"
-)
-
 // Tarmode takes a Typeflag (from a tar.Header for example) and returns the
 // corresponding os.Filemode bit. Unknown typeflags are treated like regular
 // files.
-func Tarmode(typeflag byte) uint32 {
-	switch typeflag {
-	case tar.TypeSymlink:
-		return unix.S_IFLNK
-	case tar.TypeChar:
-		return unix.S_IFCHR
-	case tar.TypeBlock:
-		return unix.S_IFBLK
-	case tar.TypeFifo:
-		return unix.S_IFIFO
-	case tar.TypeDir:
-		return unix.S_IFDIR
-	}
-	return 0
-}
+func Tarmode(typeflag byte) uint32 { _ = "STUB: not implemented"; return 0 }

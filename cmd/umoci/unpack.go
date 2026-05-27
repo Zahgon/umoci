@@ -21,15 +21,8 @@ package main
 
 import (
 	"errors"
-	"fmt"
 
 	"github.com/urfave/cli"
-
-	"github.com/opencontainers/umoci"
-	"github.com/opencontainers/umoci/internal/funchelpers"
-	"github.com/opencontainers/umoci/oci/cas/dir"
-	"github.com/opencontainers/umoci/oci/casext"
-	"github.com/opencontainers/umoci/oci/layer"
 )
 
 var unpackCommand = uxRemap(cli.Command{
@@ -69,34 +62,8 @@ creation with umoci-repack(1).`,
 	},
 })
 
-func unpack(ctx *cli.Context) (Err error) {
-	imagePath := mustFetchMeta[string](ctx, "--image-path")
-	fromName := mustFetchMeta[string](ctx, "--image-tag")
-	bundlePath := mustFetchMeta[string](ctx, "bundle")
+func unpack(ctx *cli.Context) (Err error) { _ = "STUB: not implemented"; return nil }
 
-	var meta umoci.Meta
-	meta.Version = umoci.MetaVersion
+// Parse and set up the mapping options.
 
-	// Parse and set up the mapping options.
-	err := umoci.ParseIdmapOptions(&meta, ctx)
-	if err != nil {
-		return err
-	}
-
-	unpackOptions := layer.UnpackOptions{
-		OnDiskFormat: layer.DirRootfs{
-			MapOptions: meta.MapOptions,
-		},
-		KeepDirlinks: ctx.Bool("keep-dirlinks"),
-	}
-
-	// Get a reference to the CAS.
-	engine, err := dir.Open(imagePath)
-	if err != nil {
-		return fmt.Errorf("open CAS: %w", err)
-	}
-	engineExt := casext.NewEngine(engine)
-	defer funchelpers.VerifyClose(&Err, engine)
-
-	return umoci.Unpack(engineExt, fromName, bundlePath, unpackOptions)
-}
+// Get a reference to the CAS.

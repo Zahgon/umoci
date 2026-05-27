@@ -20,48 +20,27 @@
 package system
 
 import (
-	"errors"
 	"io"
-
-	"golang.org/x/sys/unix"
 )
 
 // Copy has identical semantics to io.Copy except it will automatically resume
 // the copy after it receives an EINTR error.
 func Copy(dst io.Writer, src io.Reader) (int64, error) {
+	_ = "STUB: not implemented"
 	// Make a buffer so io.Copy doesn't make one for each iteration.
-	var buf []byte
-	size := 32 * 1024
-	if lr, ok := src.(*io.LimitedReader); ok && lr.N < int64(size) {
-		if lr.N < 1 {
-			size = 1
-		} else {
-			size = int(lr.N)
-		}
-	}
-	buf = make([]byte, size)
-
-	var written int64
-	for {
-		n, err := io.CopyBuffer(dst, src, buf)
-		written += n // n is always non-negative
-		if errors.Is(err, unix.EINTR) {
-			continue
-		}
-		return written, err
-	}
+	return 0, nil
 }
+
+// n is always non-negative
 
 // CopyN has identical semantics to io.CopyN except it will automatically
 // resume the copy after it receives an EINTR error.
 func CopyN(dst io.Writer, src io.Reader, n int64) (int64, error) {
+	_ = "STUB: not implemented"
 	// This is based on the stdlib io.CopyN implementation.
-	written, err := Copy(dst, io.LimitReader(src, n))
-	if written == n {
-		err = nil // somewhat confusing io.CopyN semantics
-	}
-	if written < n && err == nil {
-		err = io.EOF // if the source ends prematurely, io.EOF
-	}
-	return written, err
+	return 0, nil
 }
+
+// somewhat confusing io.CopyN semantics
+
+// if the source ends prematurely, io.EOF

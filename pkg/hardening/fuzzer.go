@@ -22,29 +22,8 @@
 package hardening
 
 import (
-	"bytes"
 	_ "crypto/sha256" // Import is necessary for go-digest
-	"io"
-
-	"github.com/opencontainers/go-digest"
 )
 
 // Fuzz fuzzes the VerifiedReader.Read() implementation.
-func Fuzz(data []byte) int {
-	buffer := bytes.NewBuffer(data)
-	size := len(data)
-	if !digest.SHA256.Available() {
-		return -1
-	}
-	expectedDigest := digest.SHA256.FromBytes(buffer.Bytes())
-	verifiedReader := &VerifiedReadCloser{
-		Reader:         io.NopCloser(buffer),
-		ExpectedDigest: expectedDigest,
-		ExpectedSize:   int64(size),
-	}
-	_, err := verifiedReader.Read(data)
-	if err != nil {
-		return 0
-	}
-	return 1
-}
+func Fuzz(data []byte) int { _ = "STUB: not implemented"; return 0 }

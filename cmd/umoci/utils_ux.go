@@ -20,25 +20,15 @@
 package main
 
 import (
-	"errors"
-	"fmt"
-	"strings"
-
 	"github.com/urfave/cli"
-
-	"github.com/opencontainers/umoci/internal/assert"
-	"github.com/opencontainers/umoci/oci/casext"
-	"github.com/opencontainers/umoci/oci/casext/blobcompress"
 )
 
 // foreachSubcommand runs the given closure on every command and (recursively)
 // every subcommand, allowing you to apply filters to all commands and
 // subcommands.
 func foreachSubcommand(cmds []cli.Command, fn func(*cli.Command)) {
-	for idx, cmd := range cmds {
-		fn(&cmds[idx])
-		foreachSubcommand(cmd.Subcommands, fn)
-	}
+	_ = "STUB: not implemented"
+	return
 }
 
 // uxHistory adds the full set of --history.* flags to the given cli.Command as
@@ -46,254 +36,72 @@ func foreachSubcommand(cmds []cli.Command, fn func(*cli.Command)) {
 // values will be stored in ctx.Metadata with the keys "--history.author",
 // "--history.created", "--history.created_by", "--history.comment", with
 // string values. If they are not set the value will be nil.
-func uxHistory(cmd cli.Command) cli.Command {
-	historyFlags := []cli.Flag{
-		cli.BoolFlag{
-			Name:  "no-history",
-			Usage: "do not create a history entry",
-		},
-		cli.StringFlag{
-			Name:  "history.author",
-			Usage: "author value for the history entry",
-		},
-		cli.StringFlag{
-			Name:  "history.comment",
-			Usage: "comment for the history entry",
-		},
-		cli.StringFlag{
-			Name:  "history.created",
-			Usage: "created value for the history entry",
-		},
-		cli.StringFlag{
-			Name:  "history.created_by",
-			Usage: "created_by value for the history entry",
-		},
-	}
-	cmd.Flags = append(cmd.Flags, historyFlags...)
+func uxHistory(cmd cli.Command) cli.Command { _ = "STUB: not implemented"; return *new(cli.Command) }
 
-	oldBefore := cmd.Before
-	cmd.Before = func(ctx *cli.Context) error {
-		// --no-history is incompatible with other --history.* options.
-		if ctx.Bool("no-history") {
-			for _, flag := range historyFlags {
-				if name := flag.GetName(); name == "no-history" {
-					continue
-				} else if ctx.IsSet(name) {
-					return fmt.Errorf("--no-history and --%s may not be specified together", name)
-				}
-			}
-		}
+// --no-history is incompatible with other --history.* options.
 
-		// Include any old befores set.
-		if oldBefore != nil {
-			return oldBefore(ctx)
-		}
-		return nil
-	}
-
-	return cmd
-}
+// Include any old befores set.
 
 // uxCompress adds the --compress flag to the given cli.Command as well as
 // adding relevant validation logic to the .Before of the command. The value
 // will be stored in ctx.Metadata["--compress"] as a string (or nil if --tag
 // was not specified).
-func uxCompress(cmd cli.Command) cli.Command {
-	cmd.Flags = append(cmd.Flags, cli.StringFlag{
-		Name:  "compress",
-		Usage: "compression algorithm for newly created layer blobs",
-		Value: "auto",
-	})
+func uxCompress(cmd cli.Command) cli.Command { _ = "STUB: not implemented"; return *new(cli.Command) }
 
-	oldBefore := cmd.Before
-	cmd.Before = func(ctx *cli.Context) error {
-		// Verify compression algorithm value.
-		if ctx.IsSet("compress") {
-			compressType := ctx.String("compress")
-			if compressType == "none" {
-				compressType = ""
-			}
-			var layerCompressor blobcompress.Algorithm
-			if compressType != "auto" {
-				layerCompressor = blobcompress.GetAlgorithm(compressType)
-				if layerCompressor == nil {
-					return fmt.Errorf("invalid --compress: unknown layer compression type %q", ctx.String("compress"))
-				}
-			}
-			ctx.App.Metadata["--compress"] = layerCompressor
-		}
+// Verify compression algorithm value.
 
-		// Include any old befores set.
-		if oldBefore != nil {
-			return oldBefore(ctx)
-		}
-		return nil
-	}
-
-	return cmd
-}
+// Include any old befores set.
 
 // uxTag adds a --tag flag to the given cli.Command as well as adding relevant
 // validation logic to the .Before of the command. The value will be stored in
 // ctx.Metadata["--tag"] as a string (or nil if --tag was not specified).
-func uxTag(cmd cli.Command) cli.Command {
-	cmd.Flags = append(cmd.Flags, cli.StringFlag{
-		Name:  "tag",
-		Usage: "new tag name (if empty, overwrite --image tag)",
-	})
+func uxTag(cmd cli.Command) cli.Command { _ = "STUB: not implemented"; return *new(cli.Command) }
 
-	oldBefore := cmd.Before
-	cmd.Before = func(ctx *cli.Context) error {
-		// Verify tag value.
-		if ctx.IsSet("tag") {
-			tag := ctx.String("tag")
-			if !casext.IsValidReferenceName(tag) {
-				return fmt.Errorf("invalid --tag: tag contains invalid characters: %q", tag)
-			}
-			if tag == "" {
-				return errors.New("invalid --tag: tag is empty")
-			}
-			ctx.App.Metadata["--tag"] = tag
-		}
+// Verify tag value.
 
-		// Include any old befores set.
-		if oldBefore != nil {
-			return oldBefore(ctx)
-		}
-		return nil
-	}
-
-	return cmd
-}
+// Include any old befores set.
 
 // uxImage adds an --image flag to the given cli.Command as well as adding
 // relevant validation logic to the .Before of the command. The values (image,
 // tag) will be stored in ctx.Metadata["--image-path"] and
 // ctx.Metadata["--image-tag"] as strings (both will be nil if --image is not
 // specified).
-func uxImage(cmd cli.Command) cli.Command {
-	cmd.Flags = append(cmd.Flags, cli.StringFlag{
-		Name:  "image",
-		Usage: "OCI image URI of the form 'path[:tag]'",
-	})
+func uxImage(cmd cli.Command) cli.Command { _ = "STUB: not implemented"; return *new(cli.Command) }
 
-	oldBefore := cmd.Before
-	cmd.Before = func(ctx *cli.Context) error {
-		// Verify and parse --image.
-		if ctx.IsSet("image") {
-			image := ctx.String("image")
+// Verify and parse --image.
 
-			dir, tag, ok := strings.Cut(image, ":")
-			if !ok {
-				dir = image
-				tag = "latest"
-			}
+// Verify directory value.
 
-			// Verify directory value.
-			if dir == "" {
-				return errors.New("invalid --image: path is empty")
-			}
-
-			// Verify tag value.
-			if !casext.IsValidReferenceName(tag) {
-				return fmt.Errorf("invalid --image: tag contains invalid characters: %q", tag)
-			}
-			if tag == "" {
-				return errors.New("invalid --image: tag is empty")
-			}
-
-			ctx.App.Metadata["--image-path"] = dir
-			ctx.App.Metadata["--image-tag"] = tag
-		}
-
-		if oldBefore != nil {
-			return oldBefore(ctx)
-		}
-		return nil
-	}
-
-	return cmd
-}
+// Verify tag value.
 
 // uxLayout adds an --layout flag to the given cli.Command as well as adding
 // relevant validation logic to the .Before of the command. The value is stored
 // in ctx.App.Metadata["--image-path"] as a string (or nil --layout was not set).
-func uxLayout(cmd cli.Command) cli.Command {
-	cmd.Flags = append(cmd.Flags, cli.StringFlag{
-		Name:  "layout",
-		Usage: "path to an OCI image layout",
-	})
+func uxLayout(cmd cli.Command) cli.Command { _ = "STUB: not implemented"; return *new(cli.Command) }
 
-	oldBefore := cmd.Before
-	cmd.Before = func(ctx *cli.Context) error {
-		// Verify and parse --layout.
-		if ctx.IsSet("layout") {
-			layout := ctx.String("layout")
+// Verify and parse --layout.
 
-			// Verify directory value.
-			if strings.Contains(layout, ":") {
-				return fmt.Errorf("invalid --layout: path contains ':' character: %q", layout)
-			}
-			if layout == "" {
-				return errors.New("invalid --layout: path is empty")
-			}
+// Verify directory value.
 
-			ctx.App.Metadata["--image-path"] = layout
-		}
+func uxRootless(cmd cli.Command) cli.Command { _ = "STUB: not implemented"; return *new(cli.Command) }
 
-		if oldBefore != nil {
-			return oldBefore(ctx)
-		}
-		return nil
-	}
-
-	return cmd
-}
-
-func uxRootless(cmd cli.Command) cli.Command {
-	cmd.Flags = append(cmd.Flags, []cli.Flag{
-		cli.BoolFlag{
-			Name:  "rootless",
-			Usage: "enable rootless command support",
-		},
-	}...)
-	return cmd
-}
-
-func uxRemap(cmd cli.Command) cli.Command {
-	cmd.Flags = append(cmd.Flags, []cli.Flag{
-		cli.StringSliceFlag{
-			Name:  "uid-map",
-			Usage: "specifies a uid mapping to use (container:host:size)",
-		},
-		cli.StringSliceFlag{
-			Name:  "gid-map",
-			Usage: "specifies a gid mapping to use (container:host:size)",
-		},
-	}...)
-	return uxRootless(cmd)
-}
+func uxRemap(cmd cli.Command) cli.Command { _ = "STUB: not implemented"; return *new(cli.Command) }
 
 // fetchMeta returns the requested metadata from the current [cli.Context] as
 // the requested type. fetchMeta will panic if the type parameter T does not
 // match the actual type of the metadata entry.
 func fetchMeta[T any](ctx *cli.Context, metaName string) (T, bool) {
-	val, ok := ctx.App.Metadata[metaName]
-	if !ok || val == nil {
-		return *new(T), false
-	}
-	realVal, ok := val.(T)
-	assert.Assertf(ok,
-		"umoci cli internal error: fetching cli metadata %s with wrong type %T",
-		metaName, *new(T)) // programmer error
-	return realVal, true
+	_ = "STUB: not implemented"
+	return *new(T), false
 }
+
+// programmer error
 
 // mustFetchMeta is like fetchMeta except that it will also panic if the
 // metadata is not present in the current [cli.Context].
 func mustFetchMeta[T any](ctx *cli.Context, metaName string) T {
-	val, ok := fetchMeta[T](ctx, metaName)
-	assert.Assertf(ok,
-		"umoci cli internal error: required cli metadata %s missing", metaName) // programmer error
-	return val
+	_ = "STUB: not implemented"
+	return *new(T)
 }
+
+// programmer error

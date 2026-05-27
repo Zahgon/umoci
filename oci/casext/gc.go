@@ -21,11 +21,8 @@ package casext
 
 import (
 	"context"
-	"fmt"
 
-	"github.com/apex/log"
 	"github.com/opencontainers/go-digest"
-	ispec "github.com/opencontainers/image-spec/specs-go/v1"
 )
 
 // GCPolicy is a policy function that returns 'true' if a blob can be GC'ed.
@@ -46,76 +43,17 @@ type GCPolicy func(ctx context.Context, digest digest.Digest) (bool, error)
 // blob's digest can indicate whether that blob needs to garbage collected. The
 // blob is skipped for garbage collection if a policy returns false.
 func (e Engine) GC(ctx context.Context, policies ...GCPolicy) error {
+	_ = "STUB: not implemented"
 	// Generate the root set of descriptors.
-
-	index, err := e.GetIndex(ctx)
-	if err != nil {
-		return fmt.Errorf("get top-level index: %w", err)
-	}
-
-	roots := make([]ispec.Descriptor, 0, len(index.Manifests))
-	for _, descriptor := range index.Manifests {
-		log.WithFields(log.Fields{
-			"digest": descriptor.Digest,
-		}).Debugf("GC: got reference")
-		roots = append(roots, descriptor)
-	}
-
-	// Mark from the root sets.
-	black := map[digest.Digest]struct{}{}
-	for idx, descriptor := range roots {
-		log.WithFields(log.Fields{
-			"digest": descriptor.Digest,
-		}).Debugf("GC: marking from root")
-
-		reachables, err := e.reachable(ctx, descriptor)
-		if err != nil {
-			return fmt.Errorf("getting reachables from root %d: %w", idx, err)
-		}
-		for _, reachable := range reachables {
-			black[reachable] = struct{}{}
-		}
-	}
-
-	// Sweep all blobs in the white set.
-	blobs, err := e.ListBlobs(ctx)
-	if err != nil {
-		return fmt.Errorf("get blob list: %w", err)
-	}
-
-	n := 0
-sweep:
-	for _, digest := range blobs {
-		if _, ok := black[digest]; ok {
-			// Digest is in the black set.
-			continue
-		}
-
-		for i, policy := range policies {
-			ok, err := policy(ctx, digest)
-			if err != nil {
-				return fmt.Errorf("invoking policy %d failed: %w", i, err)
-			}
-
-			if !ok {
-				// skip this blob for GC
-				log.Debugf("skipping garbage collection of blob %s because of policy %d", digest, i)
-				continue sweep
-			}
-		}
-		log.Debugf("garbage collecting blob: %s", digest)
-
-		if err := e.DeleteBlob(ctx, digest); err != nil {
-			return fmt.Errorf("remove unmarked blob %s: %w", digest, err)
-		}
-		n++
-	}
-
-	// Finally, tell CAS to GC it.
-	if err := e.Clean(ctx); err != nil {
-		return fmt.Errorf("clean engine: %w", err)
-	}
-
-	log.Debugf("garbage collected %d blobs", n)
 	return nil
 }
+
+// Mark from the root sets.
+
+// Sweep all blobs in the white set.
+
+// Digest is in the black set.
+
+// skip this blob for GC
+
+// Finally, tell CAS to GC it.

@@ -25,6 +25,4 @@ import (
 
 // Unix returns the local Time corresponding to the given Unix time, rounded to
 // the timestamp granularity for this system.
-func Unix(sec, nsec int64) time.Time {
-	return time.Unix(sec, nsec).Round(FtimeGranularity())
-}
+func Unix(sec, nsec int64) time.Time { _ = "STUB: not implemented"; return *new(time.Time) }

@@ -21,20 +21,10 @@
 package main
 
 import (
-	"errors"
-	"fmt"
 	"os"
-	"runtime"
-	"runtime/pprof"
 
 	"github.com/apex/log"
-	logcli "github.com/apex/log/handlers/cli"
-	imeta "github.com/opencontainers/image-spec/specs-go"
-	rspec "github.com/opencontainers/runtime-spec/specs-go"
 	"github.com/urfave/cli"
-
-	"github.com/opencontainers/umoci"
-	"github.com/opencontainers/umoci/internal/testhelpers"
 )
 
 const (
@@ -45,155 +35,34 @@ const (
 	categoryImage  = "image"
 )
 
-func printVersion(c *cli.Context) {
-	w := c.App.Writer
+func printVersion(c *cli.Context) { _ = "STUB: not implemented"; return }
 
-	fmt.Fprintln(w, "umoci version", c.App.Version) //nolint:errcheck // errors not relevant
-	if testhelpers.IsTestBinary() {
-		// This string is matched against in some tests (namely the xattr
-		// masking tests) to detect whether the umoci binary can be used for
-		// those tests. Make sure to update umoci-is-test-binary if you change
-		// this string!
-		fmt.Fprintln(w, "== THIS UMOCI BINARY IS COMPILED IN TEST MODE ==") //nolint:errcheck // errors not relevant
-	}
-	fmt.Fprintln(w, "image spec:", imeta.Version)   //nolint:errcheck // errors not relevant
-	fmt.Fprintln(w, "runtime spec:", rspec.Version) //nolint:errcheck // errors not relevant
-	fmt.Fprintln(w, "go:", runtime.Version())       //nolint:errcheck // errors not relevant
-}
+//nolint:errcheck // errors not relevant
+
+// This string is matched against in some tests (namely the xattr
+// masking tests) to detect whether the umoci binary can be used for
+// those tests. Make sure to update umoci-is-test-binary if you change
+// this string!
+//nolint:errcheck // errors not relevant
+
+//nolint:errcheck // errors not relevant
+//nolint:errcheck // errors not relevant
+//nolint:errcheck // errors not relevant
 
 // Main is the underlying main() implementation. You can call this directly as
 // though it were the command-line arguments of the umoci binary (this is
 // needed for umoci's integration test hacks you can find in main_test.go).
-func Main(args []string) error {
-	app := cli.NewApp()
-	app.Name = "umoci"
-	app.Usage = usage
-	app.Authors = []cli.Author{
-		{
-			Name:  "Aleksa Sarai",
-			Email: "cyphar@cyphar.com",
-		},
-	}
+func Main(args []string) error { _ = "STUB: not implemented"; return nil }
 
-	app.Version = umoci.FullVersion()
-	cli.VersionPrinter = printVersion
+// Should _never_ be reached.
 
-	app.Flags = []cli.Flag{
-		cli.BoolFlag{
-			Name:  "verbose",
-			Usage: "alias for --log=info",
-		},
-		cli.StringFlag{
-			Name:  "log",
-			Usage: "set the log level (debug, info, [warn], error, fatal)",
-			Value: "warn",
-		},
-		cli.StringFlag{
-			Name:   "cpu-profile",
-			Usage:  "profile umoci during execution and output it to a file",
-			Hidden: true,
-		},
-	}
+// In order to make the uxXyz wrappers not too cumbersome we automatically
+// add them to images with categories set to categoryImage or
+// categoryLayout. Monkey patching was never this neat.
 
-	app.Before = func(ctx *cli.Context) error {
-		log.SetHandler(logcli.New(os.Stderr))
-
-		if ctx.GlobalBool("verbose") {
-			if ctx.GlobalIsSet("log") {
-				return errors.New("--log=* and --verbose are mutually exclusive")
-			}
-			if err := ctx.GlobalSet("log", "info"); err != nil {
-				// Should _never_ be reached.
-				return fmt.Errorf("[internal error] failure auto-setting --log=info: %w", err)
-			}
-		}
-		level, err := log.ParseLevel(ctx.GlobalString("log"))
-		if err != nil {
-			return fmt.Errorf("parsing log level: %w", err)
-		}
-		log.SetLevel(level)
-
-		if path := ctx.GlobalString("cpu-profile"); path != "" {
-			fh, err := os.Create(path)
-			if err != nil {
-				return fmt.Errorf("opening cpu-profile path: %w", err)
-			}
-			if err := pprof.StartCPUProfile(fh); err != nil {
-				return fmt.Errorf("start cpu-profile: %w", err)
-			}
-		}
-		return nil
-	}
-
-	app.After = func(*cli.Context) error {
-		pprof.StopCPUProfile()
-		return nil
-	}
-
-	app.Commands = []cli.Command{
-		configCommand,
-		unpackCommand,
-		repackCommand,
-		gcCommand,
-		initCommand,
-		newCommand,
-		tagAddCommand,
-		tagRemoveCommand,
-		tagListCommand,
-		statCommand,
-		rawSubcommand,
-		insertCommand,
-	}
-
-	app.Metadata = map[string]any{}
-
-	// In order to make the uxXyz wrappers not too cumbersome we automatically
-	// add them to images with categories set to categoryImage or
-	// categoryLayout. Monkey patching was never this neat.
-	foreachSubcommand(app.Commands, func(cmd *cli.Command) {
-		switch cmd.Category {
-		case categoryImage:
-			oldBefore := cmd.Before
-			cmd.Before = func(ctx *cli.Context) error {
-				if _, ok := ctx.App.Metadata["--image-path"]; !ok {
-					return errors.New("missing mandatory argument: --image")
-				}
-				if _, ok := ctx.App.Metadata["--image-tag"]; !ok {
-					return errors.New("missing mandatory argument: --image")
-				}
-				if oldBefore != nil {
-					return oldBefore(ctx)
-				}
-				return nil
-			}
-			*cmd = uxImage(*cmd)
-		case categoryLayout:
-			oldBefore := cmd.Before
-			cmd.Before = func(ctx *cli.Context) error {
-				if _, ok := ctx.App.Metadata["--image-path"]; !ok {
-					return errors.New("missing mandatory argument: --layout")
-				}
-				if oldBefore != nil {
-					return oldBefore(ctx)
-				}
-				return nil
-			}
-			*cmd = uxLayout(*cmd)
-		}
-	})
-
-	err := app.Run(args)
-	if err != nil {
-		// If an error is a permission based error, give a hint to the user
-		// that --rootless might help. We probably should only be doing this if
-		// we're an unprivileged user.
-		if errors.Is(err, os.ErrPermission) {
-			log.Warn("umoci encountered a permission error: maybe --rootless will help?")
-		}
-		log.Debugf("%+v", err)
-	}
-	return err
-}
+// If an error is a permission based error, give a hint to the user
+// that --rootless might help. We probably should only be doing this if
+// we're an unprivileged user.
 
 func main() {
 	if err := Main(os.Args); err != nil {

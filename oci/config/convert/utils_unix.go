@@ -25,5 +25,6 @@ package convert
 // locked by CL_UNPRIVILEGED. However, user namespaces don't exist outside
 // Linux.
 func getUnprivilegedMountFlags(path string) ([]string, error) {
+	_ = "STUB: not implemented"
 	return nil, nil
 }
